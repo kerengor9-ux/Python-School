@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מסלול תרגול | Data Analyst · Data Scientist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1320;
+    --bg-soft:#131A2B;
+    --panel:#171F33;
+    --panel-2:#1D2740;
+    --line:rgba(255,255,255,0.08);
+    --text:#EDEFF7;
+    --text-dim:#9AA3BE;
+    --text-faint:#6A7291;
+    --teal:#2DD4BF;
+    --teal-dim:#164E45;
+    --violet:#A78BFA;
+    --violet-dim:#3A2E63;
+    --green:#4ADE80;
+    --green-dim:#173A28;
+    --red:#F87171;
+    --red-dim:#3A1B1E;
+    --amber:#F5C451;
+    --radius:16px;
+    --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 1100px 600px at 15% -10%, rgba(45,212,191,0.10), transparent 60%),
+      radial-gradient(ellipse 1100px 600px at 100% 0%, rgba(167,139,250,0.10), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Rubik',system-ui,sans-serif;
+    min-height:100vh;
+    line-height:1.55;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;}
+  ::selection{background:rgba(45,212,191,0.35);}
+
+  .wrap{max-width:980px;margin:0 auto;padding:28px 20px 80px;}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:28px;
+    gap:12px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    width:40px;height:40px;border-radius:11px;
+    background:linear-gradient(135deg,var(--teal),var(--violet));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-weight:700;color:#0E1320;font-size:15px;
+    flex-shrink:0;
+  }
+  .brand-text .t1{font-weight:700;font-size:16.5px;letter-spacing:-0.2px;}
+  .brand-text .t2{font-size:12.5px;color:var(--text-faint);font-family:'JetBrains Mono',monospace;}
+  .nav-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+  .btn{
+    appearance:none;border:1px solid var(--line);background:var(--panel);
+    color:var(--text);padding:10px 16px;border-radius:11px;font-family:inherit;
+    font-size:14px;font-weight:500;cursor:pointer;transition:all .15s ease;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn:hover{border-color:rgba(255,255,255,0.22);background:var(--panel-2);transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .btn-ghost{background:transparent;}
+  .btn-sm{padding:7px 12px;font-size:13px;border-radius:9px;}
+  .btn-primary{background:linear-gradient(135deg,var(--teal),#22b8a3);color:#06231F;border:none;font-weight:600;}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-violet{background:linear-gradient(135deg,var(--violet),#8b6ef0);color:#1C1236;border:none;font-weight:600;}
+  .btn-violet:hover{filter:brightness(1.08);}
+  .btn-green{background:rgba(74,222,128,0.14);color:var(--green);border:1px solid rgba(74,222,128,0.35);}
+  .btn-green:hover{background:rgba(74,222,128,0.22);}
+  .btn-red{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.3);}
+  .btn-red:hover{background:rgba(248,113,113,0.2);}
+
+  .view{display:none;}
+  .view.active{display:block;animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- hero / home ---------- */
+  .hero{
+    padding:6px 2px 30px;
+  }
+  .hero h1{
+    font-size:clamp(26px,4vw,36px);
+    font-weight:800;letter-spacing:-0.5px;margin:0 0 10px;
+  }
+  .hero .accent{background:linear-gradient(90deg,var(--teal),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero p{color:var(--text-dim);font-size:15px;max-width:60ch;margin:0;}
+
+  .cluster-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:26px;}
+  @media (max-width:720px){.cluster-grid{grid-template-columns:1fr;}}
+
+  .cluster-card{
+    position:relative;overflow:hidden;
+    background:var(--panel);border:1px solid var(--line);border-radius:20px;
+    padding:26px 24px;cursor:pointer;transition:transform .18s ease, border-color .18s ease;
+    text-align:right;
+  }
+  .cluster-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,0.18);}
+  .cluster-card::before{
+    content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;
+  }
+  .cluster-card.da::before{background:radial-gradient(circle at 100% 0%, rgba(45,212,191,0.14), transparent 55%);}
+  .cluster-card.ds::before{background:radial-gradient(circle at 100% 0%, rgba(167,139,250,0.16), transparent 55%);}
+  .cluster-card:hover::before{opacity:1;}
+  .cluster-eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:1.5px;
+    text-transform:uppercase;color:var(--text-faint);margin-bottom:10px;position:relative;
+  }
+  .cluster-card.da .cluster-eyebrow{color:var(--teal);}
+  .cluster-card.ds .cluster-eyebrow{color:var(--violet);}
+  .cluster-title{font-size:23px;font-weight:700;margin:0 0 6px;position:relative;}
+  .cluster-sub{color:var(--text-dim);font-size:13.5px;margin-bottom:18px;position:relative;}
+  .cluster-meta{display:flex;gap:18px;position:relative;flex-wrap:wrap;}
+  .meta-item{font-size:12.5px;color:var(--text-faint);}
+  .meta-item b{color:var(--text);font-family:'JetBrains Mono',monospace;font-weight:600;}
+  .cluster-progress{margin-top:16px;position:relative;}
+  .bar-track{height:6px;border-radius:4px;background:rgba(255,255,255,0.08);overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;}
+  .cluster-card.da .bar-fill{background:linear-gradient(90deg,var(--teal),#5eead4);}
+  .cluster-card.ds .bar-fill{background:linear-gradient(90deg,var(--violet),#c4b5fd);}
+
+  .home-footer-actions{margin-top:22px;display:flex;justify-content:center;}
+
+  /* ---------- topic list (cluster view) ---------- */
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:10px;flex-wrap:wrap;}
+  .section-head h2{font-size:22px;margin:0;font-weight:700;}
+  .section-head .tag{
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:5px 10px;border-radius:20px;
+    border:1px solid var(--line);color:var(--text-dim);
+  }
+  .section-sub{color:var(--text-dim);font-size:14px;margin:6px 0 22px;}
+
+  .topic-list{display:flex;flex-direction:column;gap:10px;}
+  .topic-row{
+    display:flex;align-items:center;gap:16px;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;cursor:pointer;transition:all .15s ease;
+  }
+  .topic-row:hover{border-color:rgba(255,255,255,0.2);background:var(--panel-2);transform:translateX(-2px);}
+  .topic-index{
+    font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-faint);
+    width:28px;flex-shrink:0;text-align:center;
+  }
+  .topic-info{flex:1;min-width:0;}
+  .topic-info .name{font-weight:600;font-size:15.5px;margin-bottom:5px;}
+  .topic-info .stats-line{font-size:12.5px;color:var(--text-faint);display:flex;gap:14px;flex-wrap:wrap;}
+  .topic-info .stats-line b{color:var(--text-dim);}
+  .topic-ring-wrap{flex-shrink:0;width:44px;height:44px;position:relative;}
+  .topic-ring-wrap svg{transform:rotate(-90deg);}
+  .topic-ring-bg{fill:none;stroke:rgba(255,255,255,0.08);stroke-width:4;}
+  .topic-ring-fg{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .4s ease;}
+  .topic-arrow{color:var(--text-faint);flex-shrink:0;}
+
+  /* ---------- stage view ---------- */
+  .stage-head{
+    background:var(--panel);border:1px solid var(--line);border-radius:18px;
+    padding:22px 24px;margin-bottom:22px;
+  }
+  .stage-head .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text-faint);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+  .stage-head h2{margin:0 0 10px;font-size:24px;font-weight:700;}
+  .stage-head .desc{color:var(--text-dim);font-size:14.5px;max-width:78ch;}
+  .stage-progressbar{margin-top:16px;}
+  .stage-progressbar .row{display:flex;justify-content:space-between;font-size:12px;color:var(--text-faint);margin-bottom:6px;font-family:'JetBrains Mono',monospace;}
+
+  .q-list{display:flex;flex-direction:column;gap:14px;}
+  .q-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:20px 22px;transition:border-color .2s ease;
+  }
+  .q-card.status-correct{border-color:rgba(74,222,128,0.45);background:linear-gradient(180deg, rgba(74,222,128,0.06), var(--panel) 60px);}
+  .q-card.status-wrong{border-color:rgba(248,113,113,0.4);background:linear-gradient(180deg, rgba(248,113,113,0.05), var(--panel) 60px);}
+  .q-card.status-revealed{border-color:rgba(245,196,81,0.4);}
+  .q-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
+  .q-num{
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;
+    background:rgba(255,255,255,0.06);color:var(--text-dim);
+    border-radius:8px;padding:4px 9px;flex-shrink:0;margin-top:2px;
+  }
+  .q-card.status-correct .q-num{background:rgba(74,222,128,0.18);color:var(--green);}
+  .q-card.status-wrong .q-num{background:rgba(248,113,113,0.16);color:var(--red);}
+  .q-text{font-size:15px;font-weight:500;flex:1;}
+  .q-status-pill{
+    font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 9px;border-radius:20px;
+    flex-shrink:0;white-space:nowrap;
+  }
+  .pill-correct{background:rgba(74,222,128,0.16);color:var(--green);border:1px solid rgba(74,222,128,0.3);}
+  .pill-wrong{background:rgba(248,113,113,0.14);color:var(--red);border:1px solid rgba(248,113,113,0.3);}
+
+  textarea.answer-box{
+    width:100%;min-height:70px;background:var(--bg-soft);border:1px solid var(--line);
+    border-radius:10px;color:var(--text);font-family:'Rubik',sans-serif;font-size:13.5px;
+    padding:10px 12px;resize:vertical;margin-bottom:12px;
+  }
+  textarea.answer-box:focus{outline:none;border-color:rgba(255,255,255,0.3);}
+  textarea.answer-box::placeholder{color:var(--text-faint);}
+
+  .q-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+  .answer-reveal{
+    margin-top:14px;padding:14px 16px;border-radius:12px;
+    background:rgba(255,255,255,0.035);border:1px solid var(--line);
+    font-size:14px;color:var(--text-dim);line-height:1.7;
+  }
+  .answer-reveal .lbl{
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);
+    text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block;
+  }
+  .answer-reveal pre{
+    background:#0A0E18;border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;overflow-x:auto;direction:ltr;text-align:left;
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#B8E8DE;margin:10px 0;line-height:1.6;
+  }
+  .answer-reveal code{
+    font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,0.07);
+    padding:1px 6px;border-radius:5px;font-size:12.5px;color:#E3D6FF;direction:ltr;display:inline-block;
+  }
+  .mark-correct-note{
+    margin-top:10px;font-size:12.5px;color:var(--text-faint);display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  }
+
+  .stage-footer{
+    display:flex;justify-content:center;gap:12px;margin-top:26px;flex-wrap:wrap;
+  }
+
+  /* ---------- profile ---------- */
+  .profile-hero{
+    display:flex;gap:24px;align-items:center;background:var(--panel);
+    border:1px solid var(--line);border-radius:20px;padding:26px;margin-bottom:24px;flex-wrap:wrap;
+  }
+  .score-dial{position:relative;width:132px;height:132px;flex-shrink:0;}
+  .score-dial svg{transform:rotate(-90deg);}
+  .score-num{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .score-num .n{font-size:30px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-1px;}
+  .score-num .lbl{font-size:10.5px;color:var(--text-faint);margin-top:2px;}
+  .profile-hero-text{flex:1;min-width:220px;}
+  .profile-hero-text h2{margin:0 0 8px;font-size:20px;}
+  .profile-hero-text p{color:var(--text-dim);font-size:14px;margin:0 0 14px;}
+  .pace-row{display:flex;align-items:center;gap:10px;}
+  .pace-row .bar-track{flex:1;}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px;}
+  @media (max-width:640px){.stat-grid{grid-template-columns:1fr 1fr;}}
+  .stat-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;}
+  .stat-box .v{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;}
+  .stat-box .l{font-size:12px;color:var(--text-faint);margin-top:4px;}
+
+  .profile-topic-row{
+    display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:13px 16px;margin-bottom:8px;
+  }
+  .profile-topic-row .cluster-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .profile-topic-row .name{flex:1;font-size:14px;font-weight:500;min-width:120px;}
+  .profile-topic-row .bar-track{flex:2;min-width:100px;}
+  .profile-topic-row .pct{font-family:'JetBrains Mono',monospace;font-size:12.5px;width:80px;text-align:left;color:var(--text-dim);flex-shrink:0;}
+
+  .empty-note{color:var(--text-faint);font-size:13.5px;text-align:center;padding:30px 10px;}
+
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:10px;}
+
+  @media (max-width:560px){
+    .wrap{padding:20px 14px 60px;}
+    .q-card{padding:16px;}
+    .stage-head{padding:18px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand" onclick="goHome()" style="cursor:pointer;">
+      <div class="brand-mark">DA·DS</div>
+      <div class="brand-text">
+        <div class="t1">מסלול תרגול לראיונות</div>
+        <div class="t2">python practice track</div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="goHome()">🏠 תפריט ראשי</button>
+      <button class="btn btn-primary" onclick="showProfile()">👤 הפרופיל שלי</button>
+    </div>
+  </div>
+
+  <!-- ===================== HOME VIEW ===================== -->
+  <div id="view-home" class="view active">
+    <div class="hero">
+      <h1>תתכונן לתפקיד <span class="accent">Data Analyst</span> או <span class="accent">Data Scientist</span></h1>
+      <p>שני מסלולי תרגול בפייתון, בנויים משלבים לפי נושא — מהבסיס ועד רמת ראיון עבודה. כל שלב כולל הסבר קצר ו-20 שאלות מבוססות משימות אמיתיות מהשטח.</p>
+    </div>
+
+    <div class="cluster-grid">
+      <div class="cluster-card da" onclick="showCluster('da')">
+        <div class="cluster-eyebrow">מסלול 01</div>
+        <div class="cluster-title">דטה אנליסט</div>
+        <div class="cluster-sub">Data Analyst — Python, Pandas, ויזואליזציה וסטטיסטיקה עסקית</div>
+        <div class="cluster-meta">
+          <div class="meta-item"><b id="da-topic-count">–</b> שלבים</div>
+          <div class="meta-item"><b id="da-q-count">–</b> שאלות</div>
+        </div>
+        <div class="cluster-progress">
+          <div class="bar-track"><div class="bar-fill" id="da-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="cluster-card ds" onclick="showCluster('ds')">
+        <div class="cluster-eyebrow">מסלול 02</div>
+        <div class="cluster-title">דטה סאיינטיסט</div>
+        <div class="cluster-sub">Data Scientist — Python, NumPy, סטטיסטיקה ולמידת מכונה</div>
+        <div class="cluster-meta">
+          <div class="meta-item"><b id="ds-topic-count">–</b> שלבים</div>
+          <div class="meta-item"><b id="ds-q-count">–</b> שאלות</div>
+        </div>
+        <div class="cluster-progress">
+          <div class="bar-track"><div class="bar-fill" id="ds-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CLUSTER VIEW ===================== -->
+  <div id="view-cluster" class="view">
+    <div class="section-head">
+      <h2 id="cluster-title-h2">-</h2>
+      <span class="tag" id="cluster-tag">-</span>
+    </div>
+    <div class="section-sub">לחצו על שלב כדי לפתוח את השאלות שלו. הסדר הוא מהקל לקשה.</div>
+    <div class="topic-list" id="cluster-topic-list"></div>
+  </div>
+
+  <!-- ===================== STAGE VIEW ===================== -->
+  <div id="view-stage" class="view">
+    <button class="btn btn-ghost btn-sm" id="stage-back-btn" style="margin-bottom:16px;">→ חזרה לרשימת השלבים</button>
+    <div class="stage-head">
+      <div class="eyebrow" id="stage-eyebrow">שלב</div>
+      <h2 id="stage-title">-</h2>
+      <div class="desc" id="stage-desc">-</div>
+      <div class="stage-progressbar">
+        <div class="row"><span id="stage-progress-label">0 / 20 נענו</span><span id="stage-progress-pct">0%</span></div>
+        <div class="bar-track"><div class="bar-fill" id="stage-bar" style="width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));"></div></div>
+      </div>
+    </div>
+    <div class="q-list" id="stage-q-list"></div>
+    <div class="stage-footer">
+      <button class="btn" id="add-questions-btn" onclick="addExtraQuestions()">➕ הוסף שאלות</button>
+    </div>
+  </div>
+
+  <!-- ===================== PROFILE VIEW ===================== -->
+  <div id="view-profile" class="view">
+    <div class="section-head">
+      <h2>הפרופיל שלי</h2>
+      <span class="tag">התקדמות אישית</span>
+    </div>
+    <div class="profile-hero">
+      <div class="score-dial">
+        <svg width="132" height="132">
+          <circle cx="66" cy="66" r="56" class="topic-ring-bg" stroke-width="9"></circle>
+          <circle cx="66" cy="66" r="56" id="score-ring" fill="none" stroke-width="9" stroke-linecap="round" stroke="url(#scoreGrad)" stroke-dasharray="351.8" stroke-dashoffset="351.8"></circle>
+          <defs>
+            <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#2DD4BF"/>
+              <stop offset="100%" stop-color="#A78BFA"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="score-num"><div class="n" id="score-num">–</div><div class="lbl">מתוך 10</div></div>
+      </div>
+      <div class="profile-hero-text">
+        <h2>הרמה הכללית שלך</h2>
+        <p id="score-explain">הציון משוקלל מאחוזי המענה הנכון בכל השלבים שכבר תרגלת. תרגלו כמה שאלות כדי לראות אותו מתעדכן.</p>
+        <div class="pace-row">
+          <span class="mono" style="font-size:12px;color:var(--text-faint);white-space:nowrap;">קצב התקדמות</span>
+          <div class="bar-track"><div class="bar-fill" id="pace-bar" style="width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));"></div></div>
+          <span class="mono" style="font-size:12px;color:var(--text-dim);white-space:nowrap;" id="pace-pct">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-box"><div class="v" id="stat-attempted">0</div><div class="l">שאלות שנענו בסה"כ</div></div>
+      <div class="stat-box"><div class="v" id="stat-correct">0</div><div class="l">מתוכן נכונות</div></div>
+      <div class="stat-box"><div class="v" id="stat-accuracy">–</div><div class="l">אחוז הצלחה כללי</div></div>
+    </div>
+
+    <div class="section-head"><h2 style="font-size:17px;">התקדמות לפי שלב</h2></div>
+    <div id="profile-topics-list"></div>
+  </div>
+
+</div>
+<script>
+// ====== תוכן התרגול: אשכולות, שלבים ושאלות ======
+const CLUSTERS = {
+  da: { id:'da', title:'דטה אנליסט', subtitle:'Data Analyst', accent:'#2DD4BF', order:['python_basics','numpy','pandas_clean','pandas_group','viz','stats'] },
+  ds: { id:'ds', title:'דטה סאיינטיסט', subtitle:'Data Scientist', accent:'#A78BFA', order:['python_basics','numpy','pandas_clean','stats','viz','ml_basics'] }
+};
+
+const TOPICS = {
+
+python_basics: {
+  title:'יסודות פייתון לניתוח נתונים',
+  desc:'משתנים, טיפוסי נתונים, לולאות, פונקציות, מבני נתונים (רשימות/מילונים) וטיפול בשגיאות — הבסיס שעליו בנויה כל עבודה עם נתונים בפייתון.',
+  q:[
+[`איך יוצרים משתנה מספרי ומחרוזת בפייתון, ואיך בודקים את הטיפוס (type) שלו?`,
+`יוצרים משתנה פשוט עם השמה: <code>x = 5</code> ו-<code>name = "דנה"</code>. כדי לבדוק טיפוס משתמשים בפונקציה <code>type(x)</code> שתחזיר למשל <code>&lt;class 'int'&gt;</code> או <code>&lt;class 'str'&gt;</code>.`],
+[`מה ההבדל בין list ל-tuple? מתי נשתמש בכל אחד?`,
+`שניהם אוספים סדורים, אבל <code>list</code> ניתן לשינוי (mutable) ו-<code>tuple</code> קבוע (immutable). משתמשים ב-tuple לנתונים שלא אמורים להשתנות (כמו קואורדינטות, מפתח ב-dictionary) ובגלל שהוא קל וזריז יותר, וב-list כשצריך להוסיף/להסיר איברים.`],
+[`כתוב קוד שמדפיס את כל המספרים הזוגיים בין 1 ל-20.`,
+`<pre>for n in range(1, 21):
+    if n % 2 == 0:
+        print(n)</pre>אפשר גם בקצרה עם <code>range(2, 21, 2)</code>.`],
+[`מה ההבדל בין == ל-is בפייתון?`,
+`<code>==</code> בודק שוויון ערכים, ואילו <code>is</code> בודק זהות אובייקט בזיכרון. לדוגמה שתי רשימות עם אותו תוכן יהיו <code>==</code> אבל לא בהכרח <code>is</code>. לבדיקת <code>None</code> תמיד נשתמש ב-<code>is None</code>.`],
+[`כתוב פונקציה שמקבלת רשימה של מספרים ומחזירה את הממוצע שלהם.`,
+`<pre>def average(nums):
+    if not nums:
+        return 0
+    return sum(nums) / len(nums)</pre>חשוב לטפל במקרה של רשימה ריקה כדי למנוע חלוקה באפס.`],
+[`מה זה dictionary ואיך ניגשים לערך לפי מפתח? תן דוגמה עם נתוני עובד.`,
+`<code>dict</code> הוא מבנה של זוגות מפתח-ערך. גישה: <code>emp = {'name': 'דנה', 'role': 'Analyst', 'salary': 15000}</code> ואז <code>emp['role']</code>. לגישה בטוחה יותר (בלי חריגה אם המפתח לא קיים) עדיף <code>emp.get('role')</code>.`],
+[`כתוב list comprehension שיוצר רשימה של הריבועים של המספרים 1 עד 10.`,
+`<pre>squares = [n**2 for n in range(1, 11)]</pre>קצר, קריא ומהיר יותר מלולאת for עם append.`],
+[`מה ההבדל בין for ל-while? מתי נעדיף כל אחד?`,
+`<code>for</code> מתאים כשיודעים מראש על אילו איברים לעבור (רשימה, טווח). <code>while</code> מתאים כשהעצירה תלויה בתנאי שמשתנה תוך כדי ריצה ולא ידוע מראש כמה פעמים נריץ, למשל המתנה לתשובה ממשתמש או עד שמתכנס אלגוריתם.`],
+[`כתוב קוד שקורא קובץ CSV פשוט (בלי pandas) עם מודול csv ומדפיס כל שורה.`,
+`<pre>import csv
+with open('data.csv', encoding='utf-8') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        print(row)</pre>שימוש ב-<code>with</code> מבטיח שהקובץ ייסגר אוטומטית גם אם תהיה שגיאה.`],
+[`מה זה try/except ולמה חשוב להשתמש בו בעבודה עם נתונים אמיתיים? תן דוגמה.`,
+`<code>try/except</code> תופס שגיאות בזמן ריצה כדי שהתוכנית לא תקרוס. חשוב מאוד בעבודה עם נתונים כי הם "מלוכלכים" (ערכים חסרים, טיפוסים לא צפויים).
+<pre>try:
+    result = 10 / value
+except ZeroDivisionError:
+    result = None</pre>`],
+[`מה ההבדל בין args ל-kwargs בהגדרת פונקציה?`,
+`<code>*args</code> אוסף פרמטרים לא-בשם לתוך tuple, ו-<code>**kwargs</code> אוסף פרמטרים בשם (key=value) לתוך dictionary. משתמשים בהם כשלא יודעים מראש כמה ארגומנטים תקבל הפונקציה.
+<pre>def f(*args, **kwargs):
+    print(args, kwargs)</pre>`],
+[`כתוב פונקציה שמקבלת רשימת מילונים (רשומות עובדים) ומחזירה רק את אלו שהשכר מעל סף מסוים.`,
+`<pre>def high_earners(employees, threshold):
+    return [e for e in employees if e['salary'] > threshold]</pre>שימוש ב-list comprehension עם תנאי מדמה משימת סינון אמיתית על דאטה מובנה.`],
+[`מה זה lambda function? כתוב דוגמה לשימוש עם sorted לפי מפתח מותאם.`,
+`<code>lambda</code> היא פונקציה אנונימית קצרה לשימוש חד-פעמי, בדרך כלל כארגומנט לפונקציה אחרת.
+<pre>employees.sort(key=lambda e: e['salary'], reverse=True)</pre>ממיין את העובדים לפי שכר, מהגבוה לנמוך.`],
+[`הסבר את ההבדל בין map, filter ו-list comprehension, ומתי תעדיף כל אחד.`,
+`<code>map</code> מפעיל פונקציה על כל איבר ומחזיר איטרטור חדש; <code>filter</code> משאיר רק איברים שעונים לתנאי; <code>list comprehension</code> משלב את שניהם בתחביר קריא יותר. בפועל רוב הצוותים מעדיפים comprehension כי הוא קריא יותר בפייתון, ושומרים map/filter למקרים פונקציונליים ספציפיים.`],
+[`כתוב קוד שמשתמש ב-enumerate ו-zip כדי לשלב שתי רשימות (שמות ותפקידים) למילון.`,
+`<pre>names = ['דנה', 'יוסי', 'מאיה']
+roles = ['Analyst', 'Engineer', 'Manager']
+mapping = {name: role for name, role in zip(names, roles)}</pre><code>enumerate</code> שימושי כשצריך גם אינדקס, למשל <code>for i, name in enumerate(names)</code>.`],
+[`מה זה generator ומה היתרון שלו על פני רשימה רגילה כשעובדים עם קבצים גדולים?`,
+`Generator מייצר איברים "בעצלתיים" (lazy), אחד בכל פעם, בלי לשמור את כל האוסף בזיכרון. חשוב מאוד לעיבוד קבצים גדולים.
+<pre>def read_large_file(path):
+    with open(path) as f:
+        for line in f:
+            yield line.strip()</pre>`],
+[`הסבר את הרעיון של list mutability ומה הבאג הנפוץ שקורה עם mutable default argument.`,
+`רשימות הן mutable — שינוי שלהן משפיע על כל מקום שמצביע לאותו אובייקט. באג נפוץ: <code>def add(item, lst=[])</code> — ברירת המחדל נוצרת פעם אחת בלבד ונשמרת בין קריאות, מה שגורם לצבירת נתונים לא רצויה. הפתרון הנכון הוא <code>def add(item, lst=None): lst = lst or []</code>.`],
+[`כתוב פונקציה רקורסיבית שמחשבת עצרת (factorial), והסבר מתי רקורסיה עדיפה על לולאה.`,
+`<pre>def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)</pre>רקורסיה נוחה כשהבעיה טבעית להגדרה עצמית (עצים, מבני נתונים היררכיים), אך בפייתון היא פחות יעילה מלולאה בגלל עומק קריאות מוגבל וצריכת זיכרון גבוהה יותר.`],
+[`מה זה decorator בפייתון? כתוב דקורטור פשוט שמודד זמן ריצה של פונקציה.`,
+`Decorator הוא פונקציה ש"עוטפת" פונקציה אחרת ומוסיפה לה התנהגות בלי לשנות את הקוד המקורי.
+<pre>import time
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        print(func.__name__, time.time() - start)
+        return result
+    return wrapper
+
+@timer
+def slow_function():
+    ...</pre>`],
+[`תרחיש: קיבלת קובץ לוגים ענק (מיליוני שורות) שלא נכנס לזיכרון. איך תיגש לעיבוד שלו בפייתון בצורה יעילה?`,
+`הגישה הנכונה: קריאה שורה-שורה בעזרת generator (לא <code>readlines()</code> שטוען הכול לזיכרון), עיבוד ב"chunks" בעזרת <code>pandas.read_csv(..., chunksize=...)</code> אם מדובר בטבלה, ואגירת תוצאות ביניים (למשל אגרגציות) במקום לשמור את כל השורות. אם צריך לחזור על הנתונים כמה פעמים, שוקלים לעבוד עם מסד נתונים או פורמט עמודתי כמו Parquet.`]
+  ],
+  extra:[
+[`מה ההבדל בין deep copy ל-shallow copy ברשימות/מילונים מקוננים?`,
+`<code>copy.copy()</code> (shallow) מעתיק רק את השכבה החיצונית — רשימות פנימיות עדיין משותפות עם המקור. <code>copy.deepcopy()</code> מעתיק את כל המבנה רקורסיבית, כך ששינוי בעותק לא ישפיע על המקור בכלל.`],
+[`כתוב context manager (with) לפתיחת קובץ - למה זה עדיף על open/close ידני?`,
+`<pre>with open('file.txt') as f:
+    data = f.read()</pre><code>with</code> מבטיח סגירת הקובץ אוטומטית גם אם נזרקת שגיאה בתוך הבלוק, בעוד שעם <code>open/close</code> ידני קל לשכוח לסגור במקרה חריגה.`],
+[`מה זה f-string ותן דוגמה לשילוב משתנה ועיצוב מספר בתוכו.`,
+`f-string מאפשר להטמיע ביטויים בתוך מחרוזת: <code>name = "דנה"; score = 91.234</code> ואז <code>f"{name}: {score:.2f}"</code> ידפיס "דנה: 91.23".`],
+[`הסבר את ההבדל בין mutable ל-immutable types עם 3 דוגמאות לכל סוג.`,
+`Mutable (ניתן לשינוי אחרי יצירה): <code>list</code>, <code>dict</code>, <code>set</code>. Immutable (לא ניתן לשינוי): <code>int</code>, <code>str</code>, <code>tuple</code>. ההבדל משפיע על ביצועים, שימוש כמפתחות ב-dict (רק immutable אפשר), והתנהגות בהעברה לפונקציות.`],
+[`כתוב קוד שממיין רשימת מילונים (עובדים) לפי כמה מפתחות בו-זמנית.`,
+`<pre>employees.sort(key=lambda e: (e['role'], -e['salary']))</pre>ממיין קודם לפי תפקיד (א'-ב') ובתוך כל תפקיד לפי שכר יורד.`]
+  ]
+},
+
+numpy: {
+  title:'NumPy – עבודה עם מערכים נומריים',
+  desc:'מערכים רב-ממדיים, אינדוקס וסינון, ווקטוריזציה ו-broadcasting — התשתית שעליה בנוי Pandas וכל חבילות המדע והלמידת המכונה בפייתון.',
+  q:[
+[`איך יוצרים מערך NumPy מרשימה, ואיך בודקים את הצורה (shape) שלו?`,
+`<pre>import numpy as np
+arr = np.array([1, 2, 3, 4])
+print(arr.shape)</pre>עבור מערך דו-ממדי, <code>shape</code> יחזיר tuple כמו <code>(3, 4)</code> — 3 שורות ו-4 עמודות.`],
+[`מה ההבדל בין רשימת פייתון רגילה למערך NumPy מבחינת ביצועים וטיפוסים?`,
+`מערך NumPy שומר את כל הנתונים באותו טיפוס קבוע (dtype) בזיכרון רציף, מה שמאפשר פעולות וקטוריות מהירות בהרבה (מבוססות C) מרשימת פייתון, שהיא אוסף של הפניות לאובייקטים כלליים.`],
+[`כתוב קוד שיוצר מערך של 10 אפסים ומערך של 10 אחדים.`,
+`<pre>zeros = np.zeros(10)
+ones = np.ones(10)</pre>`],
+[`איך מבצעים אינדוקס וחיתוך (slicing) במערך דו-ממדי? תן דוגמה לשליפת עמודה שלמה.`,
+`<pre>matrix = np.array([[1,2,3],[4,5,6],[7,8,9]])
+col = matrix[:, 1]   # כל השורות, עמודה 1
+row = matrix[0, :]    # שורה 0, כל העמודות</pre>`],
+[`מה זה broadcasting ב-NumPy? תן דוגמה של חיבור מערך לסקלר.`,
+`Broadcasting מאפשר לבצע פעולות בין מערכים בגדלים שונים בלי לשכפל נתונים בפועל, ע"י "הרחבה וירטואלית" של הצורה הקטנה.
+<pre>arr = np.array([1, 2, 3])
+arr + 10   # [11, 12, 13]</pre>`],
+[`כתוב קוד שמחשב ממוצע וסטיית תקן של עמודה במטריצה, לפי איזה ציר?`,
+`<pre>matrix.mean(axis=0)   # ממוצע לכל עמודה
+matrix.std(axis=0)</pre><code>axis=0</code> פועל "לאורך" השורות (כלומר תוצאה לכל עמודה), ו-<code>axis=1</code> נותן תוצאה לכל שורה.`],
+[`מה ההבדל בין reshape ל-flatten?`,
+`<code>reshape</code> משנה את צורת המערך תוך שמירה על אותם נתונים (למשל מ-(12,) ל-(3,4)), ו-<code>flatten</code> "משטח" מערך רב-ממדי לחד-ממדי. <code>flatten</code> תמיד מחזיר עותק, בעוד <code>reshape</code> יכול להחזיר view.`],
+[`כתוב קוד שמסנן ממערך רק את הערכים הגדולים מ-50 באמצעות boolean masking.`,
+`<pre>arr = np.array([10, 60, 30, 90, 45])
+filtered = arr[arr > 50]   # [60, 90]</pre>`],
+[`מה עושה np.where ותן דוגמה לשימוש בו ליצירת עמודה מותנית.`,
+`<code>np.where(condition, value_if_true, value_if_false)</code> מחזיר מערך חדש לפי תנאי, בדומה ל-IF וקטורי.
+<pre>status = np.where(scores >= 60, 'עובר', 'נכשל')</pre>`],
+[`הסבר את ההבדל בין view ל-copy במערכי NumPy, ולמה זה יכול לגרום לבאגים.`,
+`Slicing רגיל (למשל <code>arr[1:3]</code>) מחזיר view — הצצה לאותה זיכרון, כך ששינוי בו ישנה גם את המערך המקורי. פעולות מסוימות (כמו אינדוקס עם boolean mask) מחזירות copy. באג נפוץ: לשנות "בטעות" נתונים מקוריים דרך view; הפתרון הוא להשתמש ב-<code>.copy()</code> במפורש כשרוצים עותק עצמאי.`],
+[`כתוב קוד שמייצר 1000 מספרים אקראיים מהתפלגות נורמלית עם ממוצע 50 וסטיית תקן 10.`,
+`<pre>rng = np.random.default_rng(seed=42)
+sample = rng.normal(loc=50, scale=10, size=1000)</pre>שימוש ב-seed מבטיח שהתוצאה תהיה ניתנת לשחזור (reproducible).`],
+[`מה ההבדל בין np.concatenate, np.vstack ו-np.hstack?`,
+`<code>concatenate</code> הכללי ביותר — משרשר מערכים לאורך ציר נתון. <code>vstack</code> משרשר "אנכית" (מוסיף שורות), <code>hstack</code> משרשר "אופקית" (מוסיף עמודות) — למעשה מקרים פרטיים של concatenate.`],
+[`כתוב קוד שמוצא את האינדקס של הערך המקסימלי בכל שורה של מטריצה.`,
+`<pre>matrix.argmax(axis=1)</pre>מחזיר וקטור, שם כל איבר הוא מיקום הערך המקסימלי באותה שורה.`],
+[`הסבר איך broadcasting עובד בין מערך בגודל (3,4) למערך בגודל (4,) ומתי זה נכשל.`,
+`NumPy משווה צורות מהציר האחרון פנימה: (3,4) מול (4,) — הציר האחרון תואם (4=4), אז המערך הקטן "משוכפל" וירטואלית על פני 3 השורות. אם הגדלים לא תואמים ואף אחד מהם לא 1, תתקבל שגיאת <code>ValueError: operands could not be broadcast together</code>.`],
+[`כתוב קוד שמחשב מכפלת מטריצות בשתי דרכים שונות.`,
+`<pre>result1 = A @ B
+result2 = np.matmul(A, B)</pre>שימו לב: <code>A * B</code> (כפל איבר-איבר) שונה לגמרי ממכפלת מטריצות.`],
+[`איך מטפלים בערכי NaN במערך NumPy? כתוב קוד שמחשב ממוצע תוך התעלמות מ-NaN.`,
+`<pre>arr = np.array([1, 2, np.nan, 4])
+np.nanmean(arr)</pre>פונקציה רגילה כמו <code>np.mean</code> תחזיר <code>nan</code> אם יש אפילו ערך אחד חסר; יש להשתמש בגרסאות ה-<code>nan*</code> (nanmean, nansum, nanstd וכו').`],
+[`מה זה np.unique ואיך משתמשים בו כדי לספור כמויות ייחודיות?`,
+`<code>np.unique(arr, return_counts=True)</code> מחזיר את הערכים הייחודיים יחד עם מספר החזרות של כל אחד — שימושי לספירת קטגוריות במערך גולמי לפני מעבר ל-pandas.`],
+[`כתוב קוד שמחשב אחוזון (percentile) ה-90 של מערך נתונים.`,
+`<pre>p90 = np.percentile(arr, 90)</pre>שימושי לזיהוי חריגים או להגדרת ספי SLA (למשל "90% מהבקשות מגיבות תוך X מילישניות").`],
+[`תרחיש: מטריצת ציוני מבחנים (שורות=תלמידים, עמודות=מבחנים). כתוב קוד שמחזיר, לכל תלמיד, האם הממוצע שלו מעל הממוצע הכללי — וקטורית.`,
+`<pre>student_avg = scores.mean(axis=1)
+overall_avg = scores.mean()
+above_average = student_avg > overall_avg</pre>כל הפעולה מתבצעת ללא לולאת for, מה שמהיר משמעותית על מערכים גדולים.`],
+[`מתי כדאי להשתמש ב-vectorization במקום לולאת for, ותן דוגמה למדידת ההבדל בזמן ריצה.`,
+`תמיד כשעובדים על מערכים גדולים — ווקטוריזציה מריצה את הלולאה ב-C ברמת הספרייה במקום בפייתון הפרשנית, מה שיכול להאיץ פי 10-100.
+<pre>import time
+n = 1_000_000
+arr = np.arange(n)
+
+start = time.time()
+total = sum(x**2 for x in arr)
+print('loop:', time.time() - start)
+
+start = time.time()
+total = (arr**2).sum()
+print('vectorized:', time.time() - start)</pre>`]
+  ],
+  extra:[
+[`מה ההבדל בין np.array ל-np.asarray?`,
+`<code>np.array</code> תמיד יוצר עותק חדש, בעוד <code>np.asarray</code> לא יעתיק את הנתונים אם הקלט כבר מערך NumPy מאותו dtype — שימושי לחיסכון בזיכרון בפונקציות שמקבלות גם רשימות וגם מערכים.`],
+[`כתוב קוד שמחשב את המכפלה הפנימית (dot product) של שני וקטורים.`,
+`<pre>v1 = np.array([1,2,3])
+v2 = np.array([4,5,6])
+dot = np.dot(v1, v2)   # 32</pre>`],
+[`איך תיצור מטריצת יחידה (identity matrix) בגודל 5x5?`,
+`<pre>identity = np.eye(5)</pre>`],
+[`מה קורה כשמנסים לחבר שני מערכים בצורות לא תואמות שלא ניתנות ל-broadcasting?`,
+`מתקבלת שגיאת <code>ValueError: operands could not be broadcast together with shapes ...</code>. לדוגמה מערך בגודל (3,4) ומערך בגודל (3,) לא תואמים כי הציר האחרון (4 מול 3) לא זהה ואף אחד מהם אינו 1.`],
+[`כתוב קוד שממיר מערך דו-ממדי לחד-מימדי ובחזרה, ומסביר מתי כל אחד נחוץ.`,
+`<pre>flat = matrix.flatten()          # 2D -> 1D
+back = flat.reshape(3, 4)        # 1D -> 2D</pre>flatten שימושי להכנת קלט למודלים שמצפים לוקטור, reshape שימושי כשמקבלים נתונים "שטוחים" וצריך לשחזר מבנה טבלה/תמונה.`]
+  ]
+},
+
+pandas_clean: {
+  title:'Pandas – טעינה, חקירה וניקוי נתונים',
+  desc:'העבודה היומיומית של כל אנליסט/מדען נתונים: טעינת קבצים, בדיקת איכות הנתונים, טיפול בערכים חסרים, כפילויות, טיפוסים ומחרוזות מלוכלכות.',
+  q:[
+[`איך טוענים קובץ CSV ל-DataFrame ובודקים את 5 השורות הראשונות?`,
+`<pre>import pandas as pd
+df = pd.read_csv('sales.csv')
+df.head()</pre>`],
+[`מה ההבדל בין df.info() ל-df.describe()?`,
+`<code>df.info()</code> מציג טיפוסי נתונים לכל עמודה, כמות ערכים לא-חסרים וצריכת זיכרון. <code>df.describe()</code> מציג סטטיסטיקה תיאורית (ממוצע, סטיית תקן, מינימום/מקסימום, אחוזונים) לעמודות מספריות.`],
+[`איך בוחרים עמודה בודדת ואיך בוחרים כמה עמודות מתוך DataFrame?`,
+`<pre>df['sales']                 # עמודה בודדת -> Series
+df[['sales', 'region']]     # כמה עמודות -> DataFrame</pre>`],
+[`מה ההבדל בין loc ל-iloc?`,
+`<code>loc</code> בוחר לפי תוויות (שם עמודה/אינדקס), ואילו <code>iloc</code> בוחר לפי מיקום מספרי (integer position), בדומה לאינדוקס ברשימה. לדוגמה <code>df.loc[0, 'sales']</code> מול <code>df.iloc[0, 2]</code>.`],
+[`כתוב קוד שמסנן שורות שבהן עמודת 'sales' גדולה מ-1000.`,
+`<pre>high_sales = df[df['sales'] > 1000]</pre>`],
+[`איך מזהים כמה ערכים חסרים (NaN) יש בכל עמודה?`,
+`<pre>df.isna().sum()</pre>מחזיר מספר ערכים חסרים לכל עמודה — צעד ראשון וחובה בכל בדיקת איכות נתונים.`],
+[`מה ההבדל בין dropna ל-fillna, ומתי תעדיף כל אחד?`,
+`<code>dropna</code> מסיר שורות/עמודות עם ערכים חסרים — מתאים כשיש מעט חוסרים ולא רוצים "לנחש" ערכים. <code>fillna</code> ממלא ערך במקום החוסר (ממוצע, חציון, ערך קבוע) — מתאים כשמחיקת שורות תאבד יותר מדי מידע.`],
+[`כתוב קוד שמסיר שורות כפולות (duplicates) מ-DataFrame.`,
+`<pre>df = df.drop_duplicates()</pre>אפשר גם להגביל לעמודות ספציפיות: <code>df.drop_duplicates(subset=['customer_id'])</code>.`],
+[`איך ממירים עמודת טקסט שהיא בעצם תאריכים לטיפוס datetime?`,
+`<pre>df['order_date'] = pd.to_datetime(df['order_date'])</pre>לאחר מכן אפשר לחלץ שנה/חודש/יום בקלות עם <code>df['order_date'].dt.month</code>.`],
+[`כתוב קוד שמנקה עמודת מחרוזת ('  Tel Aviv  ') מרווחים מיותרים והופך לאותיות קטנות.`,
+`<pre>df['city'] = df['city'].str.strip().str.lower()</pre>`],
+[`מה זה apply ו-map ב-pandas, ומתי כל אחד מתאים יותר?`,
+`<code>Series.map</code> מתאים להחלפה פשוטה של ערכים (למשל לפי מילון), <code>apply</code> מריץ פונקציה כללית יותר על כל תא/שורה ומתאים ללוגיקה מורכבת יותר. שניהם איטיים יחסית לפעולות וקטוריות מובנות, לכן עדיף להעדיף פונקציה מובנית של pandas אם קיימת.`],
+[`תרחיש: עמודת 'price' מגיעה לפעמים כמספר ולפעמים כמחרוזת עם ₪ (כמו "150₪"). כתוב קוד שמנקה ומהמיר למספר.`,
+`<pre>df['price'] = (
+    df['price'].astype(str)
+    .str.replace('₪', '', regex=False)
+    .str.strip()
+    .astype(float)
+)</pre>`],
+[`איך מזהים ערכים חריגים (outliers) בעמודה מספרית באמצעות שיטת IQR?`,
+`<pre>Q1 = df['sales'].quantile(0.25)
+Q3 = df['sales'].quantile(0.75)
+IQR = Q3 - Q1
+outliers = df[(df['sales'] < Q1 - 1.5*IQR) | (df['sales'] > Q3 + 1.5*IQR)]</pre>`],
+[`מה ההבדל בין astype('category') לטיפוס object רגיל, ומתי זה משפר ביצועים?`,
+`<code>category</code> שומר את הערכים הייחודיים פעם אחת בלבד ומייצג כל שורה כאינדקס אליהם, מה שחוסך זיכרון משמעותית ומאיץ groupby/מיון בעמודות עם מספר קטן יחסית של ערכים ייחודיים חוזרים (כמו עיר, סטטוס, קטגוריה).`],
+[`כתוב קוד שמשנה שם של כמה עמודות בבת אחת בעזרת rename.`,
+`<pre>df = df.rename(columns={'cust_id': 'customer_id', 'amt': 'amount'})</pre>`],
+[`תרחיש: תאריכים בפורמטים לא אחידים (DD/MM/YYYY ו-YYYY-MM-DD מעורבבים). איך תיגש לבעיה?`,
+`ראשית לבדוק אילו פורמטים קיימים בפועל (למשל עם דגימת ערכים ייחודיים), ואז לנסות <code>pd.to_datetime(df['date'], errors='coerce')</code> שממיר את מה שאפשר ומחזיר <code>NaT</code> למה שנכשל, ולבסוף לטפל בנפרד בשורות שנכשלו — לרוב עם פורמט מפורש (<code>format=</code>) לכל תת-קבוצה, או ניקוי ידני של פורמט חריג.`],
+[`כתוב קוד שמוצא ומטפל בשורות שבהן יש ערך שלילי בעמודת 'quantity' שאמור להיות תמיד חיובי.`,
+`<pre>invalid = df[df['quantity'] < 0]
+df = df[df['quantity'] >= 0]  # או df.loc[df['quantity']<0,'quantity']=None לפי המדיניות</pre>לפני מחיקה כדאי לתעד/לבדוק עם בעלי הנתונים אם מדובר בטעות הזנה או בהחזרות (returns) שיש להם משמעות עסקית.`],
+[`מה ההבדל בין value_counts() ל-groupby().size()?`,
+`<code>value_counts()</code> עובד על Series בודד ומחזיר ספירה ממוינת מהגדול לקטן, נוח לבדיקה מהירה. <code>groupby('col').size()</code> גמיש יותר — עובד גם עם קיבוץ לפי כמה עמודות ומשתלב בשרשרת עיבוד ארוכה יותר.`],
+[`כתוב קוד שממיר DataFrame גדול לפורמט חסכוני יותר בזיכרון.`,
+`<pre>df['id'] = pd.to_numeric(df['id'], downcast='integer')
+df['amount'] = pd.to_numeric(df['amount'], downcast='float')
+df['status'] = df['status'].astype('category')</pre>`],
+[`תרחיש עבודה מלא: קובץ "sales_raw.csv" עם כפילויות, חוסרים ב-customer_id, מחירים כמחרוזות ותאריכים לא אחידים. תאר את סדר הפעולות לניקוי.`,
+`1) לטעון ולבדוק עם <code>info()</code>/<code>head()</code>. 2) להסיר כפילויות מלאות. 3) להחליט על מדיניות ל-customer_id חסר (מחיקה או סימון "unknown", תלוי בשימוש בהמשך). 4) לנקות ולהמיר את עמודת המחיר למספר. 5) להמיר תאריכים ל-datetime עם טיפול בפורמטים חריגים. 6) לבדוק חריגים וטווחי ערכים סבירים. 7) לתעד את כל השינויים ולשמור גרסה נקייה נפרדת מהמקור הגולמי.`]
+  ],
+  extra:[
+[`מה ההבדל בין df.copy() לבין פשוט df2 = df?`,
+`<code>df2 = df</code> יוצר רק הפניה נוספת לאותו אובייקט — שינוי ב-df2 ישנה גם את df. <code>df.copy()</code> יוצר עותק עצמאי אמיתי בזיכרון.`],
+[`כתוב קוד שממיר עמודת מחרוזת "Yes"/"No" לבוליאני.`,
+`<pre>df['active'] = df['active'].map({'Yes': True, 'No': False})</pre>`],
+[`איך בודקים אם יש שורות עם כל הערכים זהים לחלוטין לשורה אחרת?`,
+`<pre>df.duplicated().sum()</pre>מחזיר את מספר השורות שהן כפילות מלאה של שורה קודמת; <code>df[df.duplicated()]</code> מציג את השורות עצמן.`],
+[`כתוב קוד שמחלץ מעמודת אימייל את הדומיין לעמודה חדשה.`,
+`<pre>df['domain'] = df['email'].str.split('@').str[1]</pre>`],
+[`מה ההבדל בין inplace=True לבין df = df.something(), ולמה כדאי להיזהר עם inplace?`,
+`<code>inplace=True</code> משנה את ה-DataFrame המקורי ומחזיר <code>None</code>, בעוד <code>df = df.something()</code> מחזיר עותק חדש ומאפשר שרשור פעולות (method chaining). ב-inplace קל "לאבד" את הצעד המקורי בדיבוג ולעיתים הוא אף לא חוסך זיכרון בפועל — ברוב הצוותים היום מומלץ להימנע ממנו.`]
+  ]
+},
+
+pandas_group: {
+  title:'Pandas – קיבוץ, צבירה ומיזוג נתונים',
+  desc:'הכלים שהופכים טבלת נתונים גולמית לתובנה עסקית: groupby, pivot_table, merge/join וחלונות זמן — הליבה של כל דוח וניתוח.',
+  q:[
+[`איך מקבצים DataFrame לפי עמודה בודדת ומחשבים ממוצע?`,
+`<pre>df.groupby('region')['sales'].mean()</pre>`],
+[`מה ההבדל בין groupby().mean() לבין groupby().agg({...}) עם כמה פונקציות בבת אחת?`,
+`<code>.mean()</code> מחשב פונקציה אחת על כל העמודות המספריות. <code>.agg()</code> מאפשר להגדיר פונקציות שונות לעמודות שונות, למשל <code>df.groupby('region').agg({'sales':'sum','orders':'count'})</code>.`],
+[`כתוב קוד שמחשב לכל לקוח את סך הקניות ואת מספר ההזמנות.`,
+`<pre>df.groupby('customer_id').agg(total=('amount','sum'), orders=('amount','count'))</pre>`],
+[`מה עושה pivot_table ומה ההבדל בינו לבין groupby?`,
+`<code>pivot_table</code> "מפזר" ערכי עמודה אחת לעמודות חדשות בתוצאה (טבלה דו-ממדית), בעוד groupby מחזיר תוצאה "ארוכה". בפועל pivot_table הוא בעצם groupby + reshape, נוח מאוד לדוחות שצריך להציג כטבלה.`],
+[`כתוב קוד שיוצר טבלת pivot של מכירות לפי חודש (שורות) ואזור (עמודות).`,
+`<pre>pd.pivot_table(df, index='month', columns='region', values='sales', aggfunc='sum')</pre>`],
+[`מה ההבדל בין merge, join ו-concat?`,
+`<code>merge</code> מאחד שתי טבלאות לפי עמודת מפתח (כמו SQL join). <code>join</code> דומה אך ברירת המחדל שלו היא איחוד לפי האינדקס. <code>concat</code> פשוט "מדביק" טבלאות זו על גבי זו (או זו לצד זו) בלי לוגיקת מפתח.`],
+[`הסבר את ההבדל בין inner, left, right ו-outer join, ותן דוגמה עסקית לכל אחד.`,
+`<code>inner</code>: רק שורות עם התאמה בשתי הטבלאות (למשל רק לקוחות שביצעו הזמנה). <code>left</code>: כל השורות מהטבלה השמאלית גם אם אין התאמה (כל הלקוחות, גם כאלה בלי הזמנות). <code>right</code>: ההפך. <code>outer</code>: כל השורות משתי הטבלאות.`],
+[`כתוב קוד שממזג טבלת הזמנות עם טבלת לקוחות לפי customer_id.`,
+`<pre>merged = orders.merge(customers, on='customer_id', how='left')</pre>`],
+[`תרחיש: אחרי merge, מספר השורות גדל משמעותית ממה שציפית. מה קרה ואיך תבדוק/תתקן?`,
+`ככל הנראה יש כפילויות במפתח באחת הטבלאות (למשל כמה שורות עם אותו customer_id בטבלת הלקוחות) — כל התאמה יוצרת שורת מכפלה (row explosion). בודקים עם <code>customers['customer_id'].duplicated().sum()</code>, ומטפלים ע"י הסרת כפילויות או agg לפני המיזוג.`],
+[`מה ההבדל בין transform ל-apply בתוך groupby?`,
+`<code>transform</code> מחזיר תוצאה באותו אורך כמו ה-DataFrame המקורי (מתאים להוספת עמודה חדשה על בסיס הקבוצה), בעוד <code>apply</code> יכול להחזיר תוצאה מכל צורה, כולל פחות שורות (סיכום).`],
+[`כתוב קוד שמוסיף עמודה חדשה עם האחוז שכל שורה תורמת מסך המכירות של הקבוצה שלה.`,
+`<pre>df['pct_of_group'] = df['sales'] / df.groupby('region')['sales'].transform('sum')</pre>`],
+[`מה זה crosstab ומתי משתמשים בו במקום pivot_table?`,
+`<code>pd.crosstab</code> מיועד בעיקר לספירת שכיחויות בין שני משתנים קטגוריאליים (כמו טבלת מקרים) — פשוט וקצר יותר מ-pivot_table כשרק סופרים שילובים, בלי צורך בעמודת values מספרית.`],
+[`כתוב קוד שמחשב ממוצע נע (rolling average) של 7 ימים על טור מכירות יומי.`,
+`<pre>df = df.sort_values('date')
+df['rolling_7d'] = df['sales'].rolling(window=7).mean()</pre>`],
+[`איך עושים resample לנתוני זמן (למשל מיומי לחודשי)?`,
+`<pre>df = df.set_index('date')
+monthly = df['sales'].resample('M').sum()</pre>דורש שהאינדקס יהיה מטיפוס datetime.`],
+[`כתוב קוד שמדרג (rank) לקוחות בכל אזור לפי סך הקניות שלהם.`,
+`<pre>df['rank_in_region'] = df.groupby('region')['total_purchase'].rank(ascending=False)</pre>`],
+[`תרחיש: אתה צריך את 3 המוצרים הנמכרים ביותר בכל קטגוריה. כתוב את הקוד.`,
+`<pre>top3 = (df.groupby('category')
+          .apply(lambda g: g.nlargest(3, 'units_sold'))
+          .reset_index(drop=True))</pre>`],
+[`מה ההבדל בין groupby().filter() לבין groupby().apply()?`,
+`<code>filter</code> משאיר או מסלק קבוצות שלמות לפי תנאי (מחזיר תת-קבוצה של ה-DataFrame המקורי, למשל "רק אזורים עם יותר מ-100 הזמנות"). <code>apply</code> כללי יותר ומחזיר כל תוצאה שהפונקציה מחזירה, לא בהכרח סינון קבוצות.`],
+[`כתוב קוד שממזג שתי טבלאות עם שמות עמודות זהים חוץ מהמפתח, ומטפל בהתנגשות שמות.`,
+`<pre>merged = df1.merge(df2, on='id', suffixes=('_orders', '_returns'))</pre>עמודות עם שם זהה בשתי הטבלאות יקבלו את הסיומות שהוגדרו כדי שאפשר יהיה להבחין ביניהן.`],
+[`תרחיש עסקי: בניית cohort analysis - קיבוץ לקוחות לפי חודש הצטרפות ומעקב אחר הכנסה לאורך זמן.`,
+`מוצאים לכל לקוח את חודש ההזמנה הראשונה שלו (cohort month), מוסיפים אותו כעמודה לכל השורות, מחשבים את מספר החודשים שעברו מאז ההצטרפות לכל עסקה, ואז עושים <code>groupby(['cohort_month','months_since'])['revenue'].sum()</code> ו-<code>pivot_table</code> כדי לקבל טבלת קוהורטות קלאסית — שורה לכל חודש הצטרפות, עמודה לכל "חודש מאז ההצטרפות".`],
+[`איך תתמודד עם groupby על DataFrame ענק (עשרות מיליוני שורות) שמבצע לאט מדי?`,
+`אפשרויות: לצמצם טיפוסי נתונים (downcasting, category), לסנן/לצמצם עמודות מיותרות לפני הקיבוץ, להשתמש במנוע מהיר יותר כמו Polars או Dask לעיבוד מבוזר/עצלני, לבצע חלק מהאגרגציה כבר במקור הנתונים (SQL/מסד נתונים) לפני שהם מגיעים לפייתון, ולהימנע מ-<code>apply</code> עם פונקציות פייתון איטיות לטובת פונקציות agg מובנות.`]
+  ],
+  extra:[
+[`כתוב קוד שמחשב אחוז השינוי (pct_change) בהכנסות מחודש לחודש.`,
+`<pre>monthly_revenue = df.groupby('month')['revenue'].sum()
+mom_change = monthly_revenue.pct_change() * 100</pre>`],
+[`מה ההבדל בין nunique() ל-unique() בתוך groupby?`,
+`<code>nunique()</code> מחזיר מספר (כמות ערכים ייחודיים) לכל קבוצה, בעוד <code>unique()</code> מחזיר את הרשימה בפועל של הערכים הייחודיים.`],
+[`כתוב קוד שממזג שלוש טבלאות (לקוחות, הזמנות, מוצרים) לטבלה אחת מאוחדת.`,
+`<pre>full = (orders
+        .merge(customers, on='customer_id', how='left')
+        .merge(products, on='product_id', how='left'))</pre>`],
+[`איך מוסיפים עמודת "דירוג לקוח" בתוך כל אזור לפי סכום הקניות, באמצעות groupby+rank?`,
+`<pre>df['rank'] = df.groupby('region')['total_spend'].rank(ascending=False, method='dense')</pre>`],
+[`מה ההבדל בין sort_values לפני groupby לבין sort אחרי agg, ומתי זה משנה תוצאה?`,
+`מיון לפני groupby לא משפיע על תוצאת האגרגציה עצמה (רק על הסדר הפנימי, שרלוונטי לפעולות כמו <code>first()</code>/<code>last()</code>/rolling). מיון של תוצאת ה-agg (אחרי groupby) קובע רק את סדר ההצגה של התוצאה הסופית. כלומר: אם צריך "ההזמנה הראשונה" לכל לקוח יש למיין *לפני* ה-groupby; אם רק רוצים להציג תוצאה ממוינת יש למיין *אחרי*.`]
+  ]
+},
+
+viz: {
+  title:'ויזואליזציה של נתונים',
+  desc:'הפיכת טבלאות למסרים ברורים: matplotlib ו-seaborn, בחירת גרף מתאים, וטעויות נפוצות שאנליסט צריך להימנע מהן בדוחות ומצגות.',
+  q:[
+[`איך מציירים גרף קו פשוט עם matplotlib עבור מכירות לאורך זמן?`,
+`<pre>import matplotlib.pyplot as plt
+plt.plot(df['date'], df['sales'])
+plt.show()</pre>`],
+[`איך מוסיפים כותרת, תוויות צירים ומקרא (legend) לגרף?`,
+`<pre>plt.plot(df['date'], df['sales'], label='מכירות')
+plt.title('מכירות לאורך זמן')
+plt.xlabel('תאריך')
+plt.ylabel('מכירות (₪)')
+plt.legend()</pre>`],
+[`מה ההבדל בין plt.plot ל-plt.bar, ומתי משתמשים בכל אחד?`,
+`<code>plot</code> מתאים לנתונים רציפים לאורך ציר (כמו זמן) שמדגישים מגמה. <code>bar</code> מתאים להשוואת קטגוריות נפרדות זו לזו (כמו מכירות לפי אזור).`],
+[`כתוב קוד שמצייר היסטוגרמה של התפלגות גילאים בקבוצת לקוחות.`,
+`<pre>plt.hist(df['age'], bins=20)
+plt.xlabel('גיל')
+plt.ylabel('מספר לקוחות')</pre>`],
+[`מה זה boxplot ומה הוא מראה לנו שהיסטוגרמה לא בהכרח מראה?`,
+`Boxplot מציג חציון, רבעונים (Q1/Q3) וחריגים (outliers) בבירור ומאפשר להשוות במהירות כמה קבוצות זו לצד זו — משהו שקשה לעשות עם כמה היסטוגרמות חופפות.`],
+[`כתוב קוד שיוצר scatter plot של הכנסה מול הוצאה עם צביעה לפי סוג לקוח, עם seaborn.`,
+`<pre>import seaborn as sns
+sns.scatterplot(data=df, x='income', y='spending', hue='customer_type')</pre>`],
+[`איך יוצרים subplot עם כמה גרפים באותה תמונה (למשל 2x2)?`,
+`<pre>fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+axes[0,0].plot(x1, y1)
+axes[0,1].bar(x2, y2)</pre>`],
+[`כתוב קוד שיוצר heatmap של מטריצת קורלציה בין משתנים מספריים.`,
+`<pre>corr = df.corr(numeric_only=True)
+sns.heatmap(corr, annot=True, cmap='coolwarm')</pre>`],
+[`מתי תבחר bar chart לעומת line chart? תן כלל אצבע.`,
+`כלל אצבע: אם ציר ה-X מייצג זמן רציף ורוצים להראות מגמה — line chart. אם ציר ה-X מייצג קטגוריות נפרדות (אזורים, מוצרים) ורוצים להשוות ערכים ביניהן — bar chart.`],
+[`כתוב קוד שיוצר bar chart מתוצאה של groupby (ממוצע מכירות לפי אזור).`,
+`<pre>avg_by_region = df.groupby('region')['sales'].mean()
+avg_by_region.plot(kind='bar')</pre>`],
+[`איך משנים את סגנון וגודל הגרף בצורה שתשפר קריאות למצגת?`,
+`<pre>plt.style.use('seaborn-v0_8')
+plt.figure(figsize=(10, 6))</pre>כדאי גם להגדיל את גודל הגופן (fontsize) של תוויות וכותרת כשהגרף מוצג במצגת מרחוק.`],
+[`כתוב קוד שמצייר גרף ציר כפול - מכירות בכסף ומספר עסקאות על אותו גרף.`,
+`<pre>fig, ax1 = plt.subplots()
+ax1.plot(df['date'], df['revenue'], color='teal')
+ax2 = ax1.twinx()
+ax2.plot(df['date'], df['num_transactions'], color='orange')</pre>`],
+[`מה זה FacetGrid / catplot ב-seaborn ומתי כדאי להשתמש בזה במקום לולאה של גרפים?`,
+`הן מייצרות אוטומטית "רשת" של תת-גרפים לפי ערכי משתנה קטגוריאלי (למשל גרף נפרד לכל אזור), עם צירים אחידים ועיצוב עקבי — קצר ופחות שגיאות מכתיבת לולאת for ידנית על subplot.`],
+[`כתוב קוד שמסמן (annotate) את הנקודה עם הערך המקסימלי בגרף.`,
+`<pre>max_idx = df['sales'].idxmax()
+plt.annotate('שיא', xy=(df['date'][max_idx], df['sales'][max_idx]))</pre>`],
+[`מתי כדאי להשתמש בסקאלה לוגריתמית (log scale) בציר, ולמה?`,
+`כשהנתונים משתרעים על פני כמה סדרי גודל (למשל הכנסות בין 100 ל-1,000,000) — סקאלה לוגריתמית מונעת מהערכים הקטנים "להיעלם" ליד הגדולים ומקלה על השוואת יחסי גידול (אחוזים) ולא רק הפרשים מוחלטים.`],
+[`תרחיש: 50 קטגוריות מוצר ואתה רוצה גרף עמודות קריא. איך תתמודד עם ריבוי הקטגוריות?`,
+`מציגים רק את ה-Top N (למשל 10 המוצרים המובילים) ומקבצים את השאר תחת "אחר", או הופכים את הגרף לאופקי כדי שהתוויות יהיו קריאות, או עוברים לגרף אינטראקטיבי שמאפשר zoom/סינון.`],
+[`איך שומרים גרף לקובץ תמונה ברזולוציה גבוהה עבור דוח/מצגת?`,
+`<pre>plt.savefig('chart.png', dpi=300, bbox_inches='tight')</pre><code>bbox_inches='tight'</code> מונע חיתוך של תוויות בקצוות.`],
+[`אילו 3 טעויות ויזואליזציה נפוצות היית מזהיר מהן אנליסט חדש?`,
+`(1) ציר Y שלא מתחיל מ-0 בגרף עמודות, שמגזים הבדלים באופן מטעה. (2) יותר מדי מידע/צבעים בגרף אחד שמקשה על הקריאה. (3) שימוש ב-pie chart עם יותר מדי פרוסות קטנות שקשה להשוות ביניהן ויזואלית.`],
+[`תרחיש: דוח שבועי למנהלים על ביצועי מכירות. אילו 3-4 גרפים היית כולל ולמה?`,
+`(1) גרף קו של מכירות לאורך זמן — להראות מגמה. (2) גרף עמודות של ביצועים לפי אזור/מוצר — להשוואה. (3) גרף השוואה מול יעד/תקופה מקבילה אשתקד — להקשר. (4) אולי טבלת חריגים/Top movers — להסביר "למה" המספר השתנה, לא רק "מה" השתנה.`],
+[`מה ההבדל העקרוני בין matplotlib/seaborn (סטטי) לבין Plotly/dashboards אינטראקטיביים?`,
+`גרפים סטטיים מתאימים לדוחות מודפסים/מצגות שבהם רוצים שליטה מלאה על התוצאה הסופית. כלים אינטראקטיביים (Plotly, Dash, Tableau) מתאימים כשהצופה צריך לחקור בעצמו — לזום, לסנן, לרחף עם העכבר על נתונים — ומתאימים במיוחד לדשבורדים חיים שמתעדכנים.`]
+  ],
+  extra:[
+[`איך מוסיפים קווי רשת (grid) לגרף ולמה זה משפר קריאות בדוחות?`,
+`<pre>plt.grid(True, alpha=0.3)</pre>קווי רשת עדינים עוזרים לעין לקרוא ערכים מדויקים יותר מול הצירים בלי "לרעוש" את הגרף.`],
+[`כתוב קוד ליצירת pie chart, ולמה מומלץ להימנע ממנו עם הרבה קטגוריות?`,
+`<pre>plt.pie(values, labels=labels, autopct='%1.1f%%')</pre>עין האדם מתקשה להשוות שטחי זוויות במדויק, כך שכשיש יותר מ-4-5 פרוסות קשה להבחין מי גדול ממי — עדיף אז bar chart.`],
+[`מה ההבדל בין sns.barplot לבין plt.bar על תוצאה שכבר מקובצת?`,
+`<code>sns.barplot</code> יכול לקבל את הדאטה הגולמי ולחשב בעצמו את האגרגציה (כולל רווחי סמך אוטומטיים), בעוד <code>plt.bar</code> מצפה שכבר תספק ערכים מוכנים ומחושבים מראש.`],
+[`איך מציגים בגרף אחד גם ממוצע וגם רווח סמך (error bars)?`,
+`<pre>plt.errorbar(x, means, yerr=std_errors, fmt='o-')</pre>או עם seaborn: <code>sns.barplot(data=df, x='group', y='value', ci=95)</code>.`],
+[`תרחיש: להראות מגמה של 3 שנים אחורה עם עונתיות חודשית. איזה גרף תבחר ולמה?`,
+`גרף קו לאורך זמן, ואפשר להוסיף שכבה של ממוצע נע (rolling average) כדי להחליק את העונתיות ולהדגיש את המגמה הכללית, לצד הצגת הנתונים הגולמיים בקו דק/שקוף ברקע להשוואה.`]
+  ]
+},
+
+stats: {
+  title:'סטטיסטיקה, הסתברות ומבחני השערות',
+  desc:'הבסיס לקבלת החלטות מבוססות נתונים: התפלגויות, מובהקות סטטיסטית, A/B testing ומלכודות נפוצות בפרשנות תוצאות.',
+  q:[
+[`מה ההבדל בין ממוצע, חציון ושכיח, ומתי חציון עדיף על ממוצע?`,
+`ממוצע (mean) רגיש לערכים קיצוניים; חציון (median) הוא הערך האמצעי ועמיד יותר לחריגים; שכיח (mode) הוא הערך הנפוץ ביותר. כשיש התפלגות מוטה (כמו שכר, שבה יש כמה שכרים גבוהים מאוד), חציון נותן תמונה מייצגת יותר מממוצע.`],
+[`מה זה סטיית תקן ומה היא אומרת לנו על הנתונים?`,
+`סטיית תקן מודדת כמה הנתונים "מפוזרים" סביב הממוצע. סטיית תקן קטנה = ערכים מרוכזים קרוב לממוצע, סטיית תקן גדולה = פיזור רחב יותר.`],
+[`מה זה התפלגות נורמלית ומה המשמעות של כלל 68-95-99.7?`,
+`התפלגות נורמלית ("פעמון") סימטרית סביב הממוצע. הכלל אומר ש-68% מהנתונים נמצאים בטווח של סטיית תקן אחת מהממוצע, 95% בטווח של 2 סטיות תקן, ו-99.7% בטווח של 3 סטיות תקן.`],
+[`מה זה Central Limit Theorem ולמה הוא חשוב לניתוח נתונים?`,
+`המשפט קובע שממוצע של מדגמים מספיק גדולים יתפלג בקירוב נורמלית, גם אם ההתפלגות המקורית של הנתונים אינה נורמלית. זה הבסיס שמאפשר להשתמש במבחני היפותזה סטנדרטיים (כמו t-test) גם על נתונים "לא נורמליים" כשגודל המדגם מספיק.`],
+[`מה ההבדל בין קורלציה לסיבתיות? תן דוגמה.`,
+`קורלציה מראה שני משתנים נעים יחד, אבל לא מוכיחה שאחד גורם לשני. דוגמה קלאסית: מכירות גלידה ומכירות משקפי שמש מתואמות חיובית — לא כי אחד גורם לשני, אלא כי שניהם מושפעים ממשתנה שלישי (מזג אוויר חם).`],
+[`מה זה רווח סמך ואיך מפרשים "רווח סמך של 95%"?`,
+`רווח סמך הוא טווח ערכים שבו אנחנו "בטוחים" ברמת ביטחון מסוימת שהפרמטר האמיתי נמצא. "95%" אומר: אם היינו חוזרים על תהליך הדגימה פעמים רבות, ב-95% מהמקרים הרווח שהתקבל היה מכיל את הערך האמיתי — זה לא אומר "95% סיכוי שהערך בטווח הספציפי הזה".`],
+[`מה זה p-value, ומה זו טעות נפוצה בפירוש שלו?`,
+`p-value היא ההסתברות לקבל תוצאה קיצונית כמו זו שנצפתה (או יותר), בהנחה שהשערת האפס נכונה. טעות נפוצה: לפרש אותה כ"הסתברות שההשערה נכונה" — זה לא מה שהיא מודדת.`],
+[`מה ההבדל בין השערת אפס (H0) להשערה אלטרנטיבית (H1)?`,
+`H0 היא הנחת ברירת המחדל ש"אין אפקט/הבדל" (למשל אין הבדל בין גרסה A ל-B), ו-H1 היא ההשערה שכן קיים הבדל. מבחן סטטיסטי בודק אם יש מספיק ראיות לדחות את H0 לטובת H1.`],
+[`מתי משתמשים ב-t-test ומתי ב-chi-square test?`,
+`t-test משווה ממוצעים בין קבוצות (משתנה תלוי מספרי, למשל הכנסה ממוצעת). chi-square test בודק קשר בין משתנים קטגוריאליים (למשל האם יש קשר בין מגדר לבחירת מוצר).`],
+[`מה ההבדל בין שגיאת סוג I לשגיאת סוג II?`,
+`שגיאת סוג I (False Positive): דוחים את H0 בטעות כשהיא נכונה (חושבים שיש אפקט כשאין). שגיאת סוג II (False Negative): לא דוחים את H0 למרות שהיא שגויה (מפספסים אפקט אמיתי).`],
+[`כתוב קוד עם scipy.stats שמבצע t-test בין שתי קבוצות.`,
+`<pre>from scipy import stats
+t_stat, p_value = stats.ttest_ind(group_a, group_b)
+print(p_value)</pre>`],
+[`איך מחשבים גודל מדגם נדרש למבחן A/B לפני שמריצים אותו, ולמה זה חשוב?`,
+`משתמשים בנוסחת power analysis (או ספריות כמו <code>statsmodels.stats.power</code>) על סמך: שיעור ההמרה הבסיסי, הגודל הקטן ביותר של אפקט שרוצים לזהות, רמת מובהקות (בד"כ 0.05) ועוצמה סטטיסטית (בד"כ 80%). זה חשוב כדי לא לעצור מבחן מוקדם מדי (תוצאה לא אמינה) או להריץ אותו הרבה יותר זמן מהנדרש.`],
+[`מה ההבדל בין מבחן חד-זנבי (one-tailed) לדו-זנבי (two-tailed)?`,
+`מבחן דו-זנבי בודק סטייה בשני הכיוונים (גדול או קטן מהצפוי), ומבחן חד-זנבי בודק סטייה בכיוון אחד בלבד שנקבע מראש. דו-זנבי שמרני יותר ומקובל כברירת מחדל אלא אם יש סיבה עסקית חזקה מראש להתעניין רק בכיוון אחד.`],
+[`מה זה effect size ולמה מובהקות סטטיסטית לבד לא מספיקה?`,
+`Effect size מודד את גודל ההבדל בפועל (לא רק אם הוא קיים), ולא מושפע ממדגם גדול כמו p-value. במדגמים גדולים מאוד אפשר לקבל p-value מובהק גם על הבדל זעיר וחסר משמעות עסקית — לכן חשוב תמיד להסתכל גם על גודל האפקט.`],
+[`מתי תשתמש ב-ANOVA במקום כמה t-test בזוגות?`,
+`כשרוצים להשוות בין 3 קבוצות או יותר. הרצת t-test בזוגות רבים מעלה את הסיכון לשגיאת סוג I המצטברת (multiple comparisons); ANOVA בודק אם יש הבדל משמעותי כלשהו בין הקבוצות במבחן אחד מרוכז.`],
+[`מה זה תיקון להשוואות מרובות (Bonferroni) ומתי צריך אותו?`,
+`כשבודקים כמה השערות בו-זמנית (למשל 10 מטריקות שונות באותו A/B test), ההסתברות למצוא תוצאה "מובהקת" באקראי עולה. Bonferroni (ודומיו) מחמיר את סף המובהקות (למשל 0.05/10) כדי לשמור על שיעור שגיאה כללי סביר.`],
+[`תרחיש: A/B test עם p-value של 0.06. מנהל שואל "זה מובהק?" - איך תסביר?`,
+`0.06 גבוה מסף המובהקות המקובל 0.05, כך שברמה הסטטיסטית הרגילה זה לא מובהק — יש קצת יותר מ-5% סיכוי לקבל תוצאה כזו באקראי גם אם אין הבדל אמיתי. אפשר להסביר שזו "מגמה" מעניינת אבל לא מספיק ראייה חד-משמעית, ולהמליץ להמשיך לאסוף נתונים או לבחון את effect size לפני החלטה עסקית.`],
+[`מה זה Simpson's Paradox ותן דוגמה איך הוא יכול להטעות בניתוח נתונים.`,
+`תופעה שבה מגמה שמופיעה בכל תת-קבוצה בנפרד מתהפכת כשמסתכלים על הנתונים המאוחדים (או להפך) — למשל טיפול רפואי שנראה טוב יותר בכל קבוצת גיל בנפרד, אבל גרוע יותר בסך הכול, בגלל הבדלים בגודל הקבוצות. מזכיר לבדוק תמיד גם ברמת תת-קבוצות ולא רק בממוצע כללי.`],
+[`תרחיש מלא: לבדוק אם כפתור חדש מגדיל שיעור המרה. תאר תכנון וניתוח A/B test מקצה לקצה.`,
+`1) להגדיר מדד עיקרי (למשל שיעור לחיצה/רכישה) ומדדי משנה. 2) לחשב גודל מדגם נדרש מראש לפי power analysis. 3) לחלק משתמשים אקראית ל-A/B ולוודא שהחלוקה אכן אקראית ומאוזנת. 4) להריץ עד להגעה לגודל המדגם/משך הזמן שתוכנן מראש, בלי "להציץ" ולעצור מוקדם. 5) לנתח עם מבחן מתאים (למשל two-proportion z-test) ולבדוק p-value וגם effect size. 6) לוודא שאין הטיות (למשל חלוקה לא אחידה בין מכשירים) לפני קבלת החלטה.`],
+[`מה ההבדל בין מבחן פרמטרי ללא-פרמטרי, ומתי תבחר במבחן לא-פרמטרי?`,
+`מבחנים פרמטריים (כמו t-test) מניחים הנחות על ההתפלגות (בד"כ נורמליות). מבחנים לא-פרמטריים (כמו Mann-Whitney U) לא מניחים צורת התפלגות ומתאימים למדגמים קטנים, נתונים לא נורמליים, או נתונים בסדר יחסי (ordinal) ולא מספריים רציפים.`]
+  ],
+  extra:[
+[`מה ההבדל בין דגימה עם החזרה לבלי החזרה?`,
+`בדגימה עם החזרה (with replacement) פריט שנדגם חוזר לאוכלוסייה ויכול להידגם שוב (משמש למשל ב-bootstrap). בדגימה בלי החזרה כל פריט נבחר לכל היותר פעם אחת (למשל דגימה אקראית פשוטה של סקר).`],
+[`מה זה z-score ולמה משתמשים בו לזיהוי חריגים?`,
+`z-score מודד כמה סטיות תקן ערך מסוים רחוק מהממוצע: <code>(x - mean) / std</code>. ערכים עם |z| גבוה (בד"כ מעל 2-3) נחשבים חריגים פוטנציאליים.`],
+[`מה ההבדל בין covariance ל-correlation?`,
+`Covariance מודדת כיוון הקשר בין שני משתנים אבל בסקאלה תלוית-יחידות שקשה לפרש. Correlation היא גרסה מנורמלת (בין 1- ל-1) שמאפשרת להשוות עוצמת קשר בין זוגות משתנים שונים.`],
+[`מה זה bootstrap resampling ולמה הוא שימושי כשאין הנחות על ההתפלגות?`,
+`Bootstrap דוגם שוב ושוב (עם החזרה) מתוך המדגם הקיים כדי לבנות אומדן של ההתפלגות של סטטיסטי (כמו ממוצע), ומאפשר לחשב רווחי סמך בלי להניח צורת התפלגות מסוימת מראש.`],
+[`תרחיש: שני מדדי המרה שונים בגודל בין שני ערוצי שיווק (10 מול 10,000 משתמשים). מה הבעיה בהשוואה ישירה?`,
+`מדגם קטן (10) נותן אומדן מאוד לא יציב עם שונות גבוהה — הבדל שנראה גדול יכול להיות מקרי לחלוטין. יש לבדוק רווחי סמך/מובהקות סטטיסטית ולא רק להשוות אחוזים גולמיים, ולזכור שהמדגם הקטן פשוט לא מספיק כדי להסיק מסקנה אמינה.`]
+  ]
+},
+
+ml_basics: {
+  title:'למידת מכונה – בניית מודלים, פיצ׳רים והערכה',
+  desc:'המסע מנתונים גולמיים למודל עובד: הנדסת features, אימון מודלים בסיסיים ב-scikit-learn, הערכת ביצועים ופיטפולים נפוצים בדרך לפרודקשן.',
+  q:[
+[`מה ההבדל בין למידה מונחית ללא מונחית? תן דוגמה לכל אחת.`,
+`למידה מונחית (supervised) לומדת ממידע מתויג (יש תשובה נכונה לכל דוגמה), למשל חיזוי מחיר דירה. למידה לא מונחית (unsupervised) מוצאת מבנה בנתונים ללא תיוג, למשל קיבוץ לקוחות לפלחים (clustering).`],
+[`למה חשוב לחלק את הנתונים ל-train ו-test, ומה קורה אם לא עושים זאת?`,
+`חלוקה מאפשרת להעריך את ביצועי המודל על נתונים שהוא לא ראה בזמן האימון, שמדמים ביצועים בעולם האמיתי. בלי חלוקה, מודל יכול "לשנן" את דוגמאות האימון (overfitting) ולהיראות מצוין באימון אבל להיכשל על נתונים חדשים.`],
+[`מה זה overfitting ומה זה underfitting?`,
+`Overfitting: המודל "משנן" גם רעש ופרטים ספציפיים מדי מנתוני האימון, וביצועיו טובים באימון אך גרועים על נתונים חדשים. Underfitting: המודל פשוט מדי ולא לוכד אפילו את התבניות הבסיסיות, וביצועיו גרועים גם על נתוני האימון עצמם.`],
+[`כתוב קוד sklearn בסיסי שמאמן מודל רגרסיה לינארית ומנבא ערכים.`,
+`<pre>from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = LinearRegression()
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)</pre>`],
+[`מה ההבדל בין רגרסיה לינארית לרגרסיה לוגיסטית, ומתי משתמשים בכל אחת?`,
+`רגרסיה לינארית מנבאת ערך מספרי רציף (כמו מחיר). רגרסיה לוגיסטית, למרות השם, היא מודל סיווג (classification) — מנבאת הסתברות להשתייכות למחלקה (למשל "ילחץ / לא ילחץ").`],
+[`מה זה feature scaling ולמה חלק מהמודלים זקוקים לו וחלק לא?`,
+`Feature scaling (כמו סטנדרטיזציה) מביא את כל המשתנים לסקאלה דומה. מודלים מבוססי מרחק/גרדיאנט (רגרסיה לוגיסטית, SVM, רשתות נוירונים, KNN) רגישים מאוד לסקאלה, בעוד מודלים מבוססי עצים (Decision Tree, Random Forest) לא מושפעים כי הם מפצלים לפי סף ולא לפי מרחק.`],
+[`איך מטפלים במשתנה קטגוריאלי לפני שמכניסים אותו למודל?`,
+`One-hot encoding יוצר עמודה בינארית לכל קטגוריה — מתאים למרבית המודלים ולמשתנים ללא סדר טבעי. Label encoding ממיר כל קטגוריה למספר יחיד — מתאים בעיקר למודלים מבוססי עצים או כשיש סדר טבעי בין הקטגוריות.`],
+[`כתוב דוגמה להנדסת feature חדש מתוך עמודת תאריך.`,
+`<pre>df['day_of_week'] = df['date'].dt.dayofweek
+df['is_weekend'] = df['day_of_week'].isin([4, 5]).astype(int)
+df['month'] = df['date'].dt.month</pre>`],
+[`מה ההבדל בין Decision Tree ל-Random Forest?`,
+`Decision Tree הוא עץ החלטה בודד, קל לפירוש אך נוטה ל-overfitting. Random Forest מאמן הרבה עצים על תת-מדגמים ותת-features אקראיים וממצע את התחזיות (bagging), מה שמפחית overfitting ומשפר יציבות, במחיר פירוש פחות ישיר.`],
+[`מה זה k-fold cross validation ולמה הוא עדיף על חלוקת train/test בודדת?`,
+`k-fold cross validation מחלק את הנתונים ל-k חלקים, מאמן ומעריך k פעמים כשבכל פעם חלק אחר משמש כ-test — ומקבלים ממוצע יציב יותר של הביצועים, פחות תלוי בחלוקה אקראית אחת ספציפית ומנצל טוב יותר מדגמים קטנים.`],
+[`מה ההבדל בין MAE, MSE ו-RMSE במדידת שגיאת רגרסיה?`,
+`MAE (ממוצע שגיאה מוחלטת) קל לפרש ביחידות המקוריות. MSE מעניש שגיאות גדולות יותר בחוזקה (בגלל הריבוע), רגיש יותר לחריגים. RMSE הוא שורש MSE, שמחזיר את השגיאה ליחידות המקוריות תוך שמירה על הרגישות לחריגים.`],
+[`מה זה R² ומה המשמעות של ערך שלילי שלו?`,
+`R² מודד איזה חלק מהשונות ב-y מוסבר על ידי המודל, כאשר 1 הוא התאמה מושלמת. ערך שלילי אומר שהמודל גרוע יותר מאשר פשוט לחזות תמיד את הממוצע — סימן אזהרה חמור.`],
+[`הסבר מהי מטריצת בלבול ומה ההבדל בין precision ל-recall.`,
+`מטריצת בלבול (confusion matrix) מציגה True/False Positive/Negative. Precision = מתוך מה שהמודל סימן כחיובי, כמה באמת חיוביים (איכות התחזיות החיוביות). Recall = מתוך כל המקרים החיוביים בפועל, כמה המודל תפס (כיסוי).`],
+[`מתי תעדיף למקסם recall על פני precision? תן דוגמה עסקית.`,
+`בזיהוי הונאות או מחלות — עדיף לתפוס כמה שיותר מקרים אמיתיים (recall גבוה) גם במחיר כמה false positives, כי פספוס מקרה אמיתי (הונאה שלא זוהתה) יקר בהרבה מבדיקה מיותרת של מקרה תקין.`],
+[`מה זה ROC-AUC ומה הוא מודד?`,
+`ROC-AUC מודד את יכולת המודל להפריד בין המחלקות על פני כל ספי ההחלטה האפשריים — 0.5 = ניחוש אקראי, 1.0 = הפרדה מושלמת. שימושי במיוחד כשרוצים להעריך מודל בלי להתחייב מראש לסף החלטה ספציפי.`],
+[`איך מתמודדים עם בעיית מחלקות לא מאוזנות, למשל 2% הונאות בלבד?`,
+`אפשרויות: resampling (oversampling למחלקה המיעוט כמו SMOTE, או undersampling לרוב), שימוש במדדי הערכה מתאימים (precision/recall/AUC ולא accuracy גרידא), משקלים למחלקות בפונקציית ההפסד (class_weight), ובחירת סף החלטה מותאם ולא ברירת המחדל 0.5.`],
+[`מה ההבדל בין GridSearchCV ל-RandomizedSearchCV לכיוונון היפרפרמטרים?`,
+`GridSearchCV בודק את כל הצירופים האפשריים ברשת ערכים שהוגדרה — יסודי אך יקר חישובית. RandomizedSearchCV דוגם צירופים אקראיים ממרחב הפרמטרים — מהיר בהרבה ולעיתים קרובות מגיע לתוצאות דומות במחיר חישובי נמוך משמעותית, במיוחד כשיש הרבה היפרפרמטרים.`],
+[`מה זה רגולריזציה (L1/L2) ולמה היא עוזרת נגד overfitting?`,
+`רגולריזציה מוסיפה "קנס" על משקלים גדולים מדי במודל, מה שמעודד מודל פשוט יותר. L2 (Ridge) מקטין משקלים בצורה חלקה, L1 (Lasso) יכול לאפס לגמרי משקלים לא חשובים ובכך גם לבצע בחירת features אוטומטית.`],
+[`מה ההבדל בין K-Means ל-PCA?`,
+`K-Means הוא אלגוריתם clustering — מחלק תצפיות לקבוצות (אשכולות) על סמך דמיון. PCA הוא dimensionality reduction — מצמצם את מספר המשתנים תוך שמירה על מירב המידע/השונות. הם פותרים בעיות שונות לגמרי, אם כי לעיתים משתמשים ב-PCA לפני K-Means כדי להקל על החישוב.`],
+[`תרחיש end-to-end: לבנות מודל שמנבא נטישת לקוחות (churn). תאר את שלבי הפייפליין המלא.`,
+`1) איסוף וניקוי נתונים היסטוריים על לקוחות (כולל תיוג מי נטש בפועל). 2) הנדסת features (ותק, תדירות שימוש, תלונות, וכו'). 3) חלוקה ל-train/test וטיפול באי-איזון מחלקות. 4) אימון כמה מודלים (למשל Logistic Regression כ-baseline ו-Random Forest/Gradient Boosting לביצועים טובים יותר). 5) הערכה עם מדדים מתאימים (recall/precision/AUC) ולא רק accuracy. 6) כיוונון היפרפרמטרים עם cross-validation. 7) פריסה לפרודקשן, ומעקב מתמשך אחר ביצועי המודל בזמן אמת (model monitoring) כדי לזהות דעיכה (drift).`]
+  ],
+  extra:[
+[`מה ההבדל בין bagging ל-boosting?`,
+`Bagging (כמו Random Forest) מאמן מודלים במקביל על תת-מדגמים אקראיים וממצע תוצאות, בעיקר להפחתת שונות. Boosting (כמו Gradient Boosting/XGBoost) מאמן מודלים ברצף כשכל מודל מתמקד בתיקון הטעויות של קודמו, בעיקר להפחתת הטיה — לרוב מדויק יותר אך רגיש יותר ל-overfitting.`],
+[`מה זה data leakage ואיך הוא יכול "לשקר" לך על ביצועי המודל?`,
+`Data leakage קורה כשמידע מה-test (או מידע שלא היה זמין בזמן החיזוי האמיתי) "מדליף" לתהליך האימון — למשל לבצע scaling על כל הנתונים לפני החלוקה ל-train/test. זה גורם למודל להיראות מדויק להפליא באימון/הערכה, אך לקרוס בפרודקשן על נתונים אמיתיים.`],
+[`מה ההבדל בין pipeline ב-sklearn לבין הרצת שלבי עיבוד בנפרד?`,
+`<code>Pipeline</code> מאגד את כל שלבי העיבוד (scaling, encoding) והמודל לאובייקט אחד, מה שמונע data leakage בין train ל-test (כי ה-fit מתבצע רק על train בכל fold) ומפשט שכפול התהליך על נתונים חדשים.`],
+[`מה זה baseline model ולמה חשוב להשוות אליו לפני שמתלהבים ממודל מתקדם?`,
+`Baseline הוא מודל פשוט מאוד (כמו "תמיד לחזות את הממוצע" או Logistic Regression בסיסי) שמשמש קו ייחוס. אם מודל מורכב לא משפר משמעותית על ה-baseline, יתכן שהמורכבות הנוספת לא שווה את המחיר (זמן, פירוש, תחזוקה).`],
+[`תרחיש: מודל מגיע ל-99% accuracy על זיהוי הונאות. למה זה כנראה לא חדשות טובות?`,
+`כי אם רק 1% מהמקרים הם הונאה בפועל, מודל ש"מנחש" תמיד "לא הונאה" יגיע גם הוא ל-99% accuracy מבלי לזהות אף הונאה. במחלקות לא מאוזנות accuracy מטעה, ויש להסתכל על precision/recall/AUC כדי להבין את הביצועים האמיתיים.`]
+  ]
+}
+
+};
+</script>
+<script>
+/* ================= state ================= */
+let STATE = { topics: {} }; // { topicId: { answers: {qid: 'correct'|'wrong'}, extraBatches: n } }
+let currentCluster = null;
+let currentTopic = null;
+let storageReady = false;
+
+const EXTRA_BATCH_SIZE = 5;
+
+function getTopicQuestions(topicId){
+  const t = TOPICS[topicId];
+  const s = STATE.topics[topicId] || { answers:{}, extraBatches:0 };
+  const list = t.q.map((pair,i)=>({ id:'q'+i, q:pair[0], a:pair[1] }));
+  const extraCount = Math.min(s.extraBatches * EXTRA_BATCH_SIZE, t.extra.length);
+  for(let i=0;i<extraCount;i++){
+    list.push({ id:'e'+i, q:t.extra[i][0], a:t.extra[i][1] });
+  }
+  return list;
+}
+
+function getTopicState(topicId){
+  if(!STATE.topics[topicId]) STATE.topics[topicId] = { answers:{}, extraBatches:0 };
+  return STATE.topics[topicId];
+}
+
+function topicStats(topicId){
+  const qs = getTopicQuestions(topicId);
+  const s = getTopicState(topicId);
+  let attempted=0, correct=0;
+  qs.forEach(q=>{
+    const st = s.answers[q.id];
+    // only 'correct' / 'wrong' count as attempted; 'revealed' (checked but not yet self-marked) does not
+    if(st==='correct' || st==='wrong'){ attempted++; if(st==='correct') correct++; }
+  });
+  return { total: qs.length, attempted, correct };
+}
+
+let storageAvailable = true;
+
+function persistTopic(topicId){
+  if(!storageAvailable) return;
+  try{
+    localStorage.setItem('topic_state:'+topicId, JSON.stringify(STATE.topics[topicId]));
+  }catch(e){
+    storageAvailable = false;
+    console.warn('Local storage not available in this browser — progress will work for this session only.');
+  }
+}
+
+function loadAll(){
+  const ids = Object.keys(TOPICS);
+  ids.forEach(id=>{
+    try{
+      const raw = localStorage.getItem('topic_state:'+id);
+      if(raw){ STATE.topics[id] = JSON.parse(raw); }
+    }catch(e){
+      storageAvailable = false;
+    }
+  });
+  storageReady = true;
+}
+
+/* ================= navigation ================= */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function goHome(){
+  renderHome();
+  showView('view-home');
+}
+
+function showCluster(clusterId){
+  currentCluster = clusterId;
+  renderCluster(clusterId);
+  showView('view-cluster');
+}
+
+function openTopic(topicId){
+  currentTopic = topicId;
+  renderStage(topicId);
+  showView('view-stage');
+}
+
+function showProfile(){
+  renderProfile();
+  showView('view-profile');
+}
+
+/* ================= rendering: home ================= */
+function clusterAggregate(clusterId){
+  const cl = CLUSTERS[clusterId];
+  let totalQ=0, attempted=0, correct=0;
+  cl.order.forEach(tid=>{
+    const st = topicStats(tid);
+    totalQ += st.total; attempted += st.attempted; correct += st.correct;
+  });
+  return { totalQ, attempted, correct, topicCount: cl.order.length };
+}
+
+function renderHome(){
+  ['da','ds'].forEach(cid=>{
+    const agg = clusterAggregate(cid);
+    document.getElementById(cid+'-topic-count').textContent = agg.topicCount;
+    document.getElementById(cid+'-q-count').textContent = agg.totalQ;
+    const pct = agg.totalQ ? Math.round(agg.attempted/agg.totalQ*100) : 0;
+    document.getElementById(cid+'-bar').style.width = pct+'%';
+  });
+}
+
+/* ================= rendering: cluster (topic list) ================= */
+function renderCluster(clusterId){
+  const cl = CLUSTERS[clusterId];
+  document.getElementById('cluster-title-h2').textContent = cl.title + ' — רשימת שלבים';
+  document.getElementById('cluster-tag').textContent = cl.subtitle;
+
+  const wrapEl = document.getElementById('cluster-topic-list');
+  wrapEl.innerHTML = '';
+  cl.order.forEach((tid, idx)=>{
+    const t = TOPICS[tid];
+    const st = topicStats(tid);
+    const pct = st.attempted ? Math.round(st.correct/st.attempted*100) : 0;
+    const circumference = 2*Math.PI*18;
+    const dash = st.total ? (st.attempted/st.total)*circumference : 0;
+    const color = cl.accent;
+
+    const row = document.createElement('div');
+    row.className = 'topic-row';
+    row.onclick = ()=>openTopic(tid);
+    row.innerHTML = `
+      <div class="topic-index mono">${String(idx+1).padStart(2,'0')}</div>
+      <div class="topic-info">
+        <div class="name">${t.title}</div>
+        <div class="stats-line">
+          <span><b>${st.attempted}</b> / ${st.total} נענו</span>
+          <span>${st.attempted ? `<b>${pct}%</b> הצלחה` : 'טרם התחלת'}</span>
+        </div>
+      </div>
+      <div class="topic-ring-wrap">
+        <svg width="44" height="44">
+          <circle cx="22" cy="22" r="18" class="topic-ring-bg"></circle>
+          <circle cx="22" cy="22" r="18" class="topic-ring-fg" stroke="${color}"
+            stroke-dasharray="${circumference}" stroke-dashoffset="${circumference-dash}"></circle>
+        </svg>
+      </div>
+      <div class="topic-arrow">‹</div>
+    `;
+    wrapEl.appendChild(row);
+  });
+}
+
+/* ================= rendering: stage (questions) ================= */
+function renderStage(topicId){
+  const t = TOPICS[topicId];
+  const clusterLabel = currentCluster ? CLUSTERS[currentCluster].title : '';
+  document.getElementById('stage-eyebrow').textContent = clusterLabel ? ('שלב · ' + clusterLabel) : 'שלב';
+  document.getElementById('stage-title').textContent = t.title;
+  document.getElementById('stage-desc').textContent = t.desc;
+
+  document.getElementById('stage-back-btn').onclick = ()=>{
+    if(currentCluster) showCluster(currentCluster); else goHome();
+  };
+
+  renderQuestions(topicId);
+}
+
+function renderQuestions(topicId){
+  const t = TOPICS[topicId];
+  const s = getTopicState(topicId);
+  const qs = getTopicQuestions(topicId);
+  const listEl = document.getElementById('stage-q-list');
+  listEl.innerHTML = '';
+
+  qs.forEach((item, idx)=>{
+    const status = s.answers[item.id]; // undefined | 'revealed' | 'correct' | 'wrong'
+    const card = document.createElement('div');
+    card.className = 'q-card' + (status==='correct' ? ' status-correct' : status==='wrong' ? ' status-wrong' : status==='revealed' ? ' status-revealed' : '');
+    card.id = 'card-'+item.id;
+
+    const pill = status==='correct'
+      ? '<span class="q-status-pill pill-correct">✓ נכון</span>'
+      : status==='wrong'
+        ? '<span class="q-status-pill pill-wrong">✗ טעות</span>'
+        : '';
+
+    card.innerHTML = `
+      <div class="q-top">
+        <div class="q-num mono">${idx+1}</div>
+        <div class="q-text">${item.q}</div>
+        ${pill}
+      </div>
+      <textarea class="answer-box" placeholder="כתבו כאן את התשובה שלכם (רשימה, קוד, או הסבר)..." id="ta-${item.id}"></textarea>
+      <div id="reveal-${item.id}"></div>
+      <div class="q-actions" id="actions-${item.id}"></div>
+    `;
+    listEl.appendChild(card);
+    renderActions(topicId, item);
+  });
+
+  updateStageProgress(topicId);
+  const t2 = TOPICS[topicId];
+  const shown = qs.length;
+  const remainingExtra = t2.extra.length - (getTopicState(topicId).extraBatches * EXTRA_BATCH_SIZE);
+  const addBtn = document.getElementById('add-questions-btn');
+  if(remainingExtra <= 0){
+    addBtn.style.display = 'none';
+  } else {
+    addBtn.style.display = 'inline-flex';
+    addBtn.textContent = `➕ הוסף ${Math.min(EXTRA_BATCH_SIZE, remainingExtra)} שאלות נוספות`;
+  }
+}
+
+function renderActions(topicId, item){
+  const s = getTopicState(topicId);
+  const status = s.answers[item.id]; // undefined | 'revealed' | 'correct' | 'wrong'
+  const actionsEl = document.getElementById('actions-'+item.id);
+  const revealEl = document.getElementById('reveal-'+item.id);
+  actionsEl.innerHTML = '';
+
+  if(status === undefined){
+    // step 1: nothing shown yet, only a check button
+    revealEl.innerHTML = '';
+    const btnCheck = document.createElement('button');
+    btnCheck.className = 'btn btn-sm';
+    btnCheck.innerHTML = '🔍 בדיקה';
+    btnCheck.onclick = ()=> revealAnswer(topicId, item);
+    actionsEl.appendChild(btnCheck);
+    return;
+  }
+
+  // answer is visible from here on
+  revealEl.innerHTML = `<div class="answer-reveal"><span class="lbl">התשובה המומלצת</span>${item.a}</div>`;
+
+  if(status === 'revealed'){
+    // step 2: ask the user to self-mark
+    const btnCorrect = document.createElement('button');
+    btnCorrect.className = 'btn btn-green btn-sm';
+    btnCorrect.innerHTML = '✅ עניתי נכון';
+    btnCorrect.onclick = ()=> markAnswer(topicId, item, 'correct');
+    const btnWrong = document.createElement('button');
+    btnWrong.className = 'btn btn-red btn-sm';
+    btnWrong.innerHTML = '❌ עניתי לא נכון';
+    btnWrong.onclick = ()=> markAnswer(topicId, item, 'wrong');
+    actionsEl.appendChild(btnCorrect);
+    actionsEl.appendChild(btnWrong);
+  } else {
+    // already marked: allow changing your mind
+    const flip = document.createElement('button');
+    flip.className = 'btn btn-sm';
+    if(status==='wrong'){
+      flip.innerHTML = '✅ בכל זאת עניתי נכון';
+      flip.onclick = ()=> markAnswer(topicId, item, 'correct');
+    } else {
+      flip.innerHTML = '↺ סמן כטעות';
+      flip.onclick = ()=> markAnswer(topicId, item, 'wrong');
+    }
+    actionsEl.appendChild(flip);
+  }
+}
+
+function revealAnswer(topicId, item){
+  const s = getTopicState(topicId);
+  s.answers[item.id] = 'revealed';
+  persistTopic(topicId);
+
+  const card = document.getElementById('card-'+item.id);
+  card.classList.add('status-revealed');
+
+  renderActions(topicId, item);
+  // note: does NOT count as attempted / does NOT mark wrong by itself
+}
+
+function markAnswer(topicId, item, status){
+  const s = getTopicState(topicId);
+  s.answers[item.id] = status;
+  persistTopic(topicId);
+
+  const card = document.getElementById('card-'+item.id);
+  card.classList.remove('status-correct','status-wrong','status-revealed');
+  card.classList.add(status==='correct' ? 'status-correct' : 'status-wrong');
+
+  // update pill
+  const topRow = card.querySelector('.q-top');
+  let pillEl = topRow.querySelector('.q-status-pill');
+  if(!pillEl){ pillEl = document.createElement('span'); topRow.appendChild(pillEl); }
+  pillEl.className = 'q-status-pill ' + (status==='correct' ? 'pill-correct' : 'pill-wrong');
+  pillEl.textContent = status==='correct' ? '✓ נכון' : '✗ טעות';
+
+  renderActions(topicId, item);
+  updateStageProgress(topicId);
+}
+
+function updateStageProgress(topicId){
+  const st = topicStats(topicId);
+  const pct = st.total ? Math.round((st.attempted/st.total)*100) : 0;
+  document.getElementById('stage-progress-label').textContent = `${st.attempted} / ${st.total} נענו`;
+  document.getElementById('stage-progress-pct').textContent = pct+'%';
+  document.getElementById('stage-bar').style.width = pct+'%';
+}
+
+function addExtraQuestions(){
+  const s = getTopicState(currentTopic);
+  s.extraBatches += 1;
+  persistTopic(currentTopic);
+  renderQuestions(currentTopic);
+}
+
+/* ================= rendering: profile ================= */
+function overallScore(){
+  const ids = Object.keys(TOPICS);
+  let accSum = 0, accCount = 0;
+  let totalAttempted=0, totalCorrect=0, totalQuestions=0;
+  ids.forEach(id=>{
+    const st = topicStats(id);
+    totalQuestions += st.total;
+    totalAttempted += st.attempted;
+    totalCorrect += st.correct;
+    if(st.attempted>0){
+      accSum += (st.correct/st.attempted);
+      accCount++;
+    }
+  });
+  let score = null;
+  if(accCount>0){
+    const raw = (accSum/accCount) * 10;
+    score = Math.round(raw*2)/2; // nearest 0.5
+  }
+  const pace = totalQuestions ? Math.round((totalAttempted/totalQuestions)*100) : 0;
+  return { score, totalAttempted, totalCorrect, totalQuestions, pace };
+}
+
+function renderProfile(){
+  const agg = overallScore();
+  const scoreEl = document.getElementById('score-num');
+  const ring = document.getElementById('score-ring');
+  const circumference = 2*Math.PI*56;
+  ring.setAttribute('stroke-dasharray', circumference.toFixed(1));
+  if(agg.score === null){
+    scoreEl.textContent = '–';
+    ring.setAttribute('stroke-dashoffset', circumference.toFixed(1));
+    document.getElementById('score-explain').textContent = 'עדיין לא ענית על אף שאלה. תתחילו לתרגל כדי לראות כאן את הרמה שלכם.';
+  } else {
+    scoreEl.textContent = agg.score.toFixed(1);
+    const frac = agg.score/10;
+    ring.setAttribute('stroke-dashoffset', (circumference*(1-frac)).toFixed(1));
+    document.getElementById('score-explain').textContent = 'הציון משוקלל מאחוזי המענה הנכון בכל השלבים שתרגלת עד כה, בסולם 0–10 בקפיצות של חצי נקודה.';
+  }
+
+  document.getElementById('pace-bar').style.width = agg.pace + '%';
+  document.getElementById('pace-pct').textContent = agg.pace + '%';
+
+  document.getElementById('stat-attempted').textContent = agg.totalAttempted;
+  document.getElementById('stat-correct').textContent = agg.totalCorrect;
+  document.getElementById('stat-accuracy').textContent = agg.totalAttempted ? Math.round(agg.totalCorrect/agg.totalAttempted*100)+'%' : '–';
+
+  // per-topic breakdown, grouped by unique topic, showing which clusters use it
+  const listEl = document.getElementById('profile-topics-list');
+  listEl.innerHTML = '';
+  const seen = new Set();
+  const order = [...CLUSTERS.da.order, ...CLUSTERS.ds.order.filter(t=>!CLUSTERS.da.order.includes(t))];
+  order.forEach(tid=>{
+    if(seen.has(tid)) return;
+    seen.add(tid);
+    const t = TOPICS[tid];
+    const st = topicStats(tid);
+    const pct = st.attempted ? Math.round(st.correct/st.attempted*100) : 0;
+    const inDa = CLUSTERS.da.order.includes(tid);
+    const inDs = CLUSTERS.ds.order.includes(tid);
+    const dotColor = inDa && inDs ? 'linear-gradient(90deg,var(--teal),var(--violet))' : inDa ? 'var(--teal)' : 'var(--violet)';
+    const row = document.createElement('div');
+    row.className = 'profile-topic-row';
+    row.innerHTML = `
+      <span class="cluster-dot" style="background:${dotColor}"></span>
+      <span class="name">${t.title}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${st.total? (st.attempted/st.total*100):0}%; background:${st.attempted ? (pct>=60?'var(--green)':'var(--amber)') : 'rgba(255,255,255,0.15)'};"></div></div>
+      <span class="pct mono">${st.attempted} / ${st.total} · ${st.attempted? pct+'%':'—'}</span>
+    `;
+    listEl.appendChild(row);
+  });
+}
+
+/* ================= init ================= */
+(async function init(){
+  await loadAll();
+  goHome();
+})();
+</script>
+</body>
+</html>
