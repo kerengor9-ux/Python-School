@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>קורס פייתון לדטה אנליסט ודטה סאיינטיסט</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<style>
+  :root{
+    --bg:#12100D;
+    --bg-soft:#181510;
+    --panel:#1D1912;
+    --panel-2:#241F16;
+    --line:rgba(255,255,255,0.09);
+    --text:#F3EFE6;
+    --text-dim:#B3AA98;
+    --text-faint:#7A7263;
+    --amber:#F5B942;
+    --amber-dim:#4A3A15;
+    --teal:#4DD0C4;
+    --violet:#B98BF5;
+    --green:#7EDB8F;
+    --green-dim:#1D3320;
+    --red:#F0806E;
+    --red-dim:#3A1D18;
+    --radius:16px;
+    --shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 1000px 550px at 90% -10%, rgba(245,185,66,0.08), transparent 60%),
+      radial-gradient(ellipse 900px 500px at 0% 100%, rgba(77,208,196,0.06), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Rubik',system-ui,sans-serif;
+    min-height:100vh;
+    line-height:1.6;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  ::selection{background:rgba(245,185,66,0.3);}
+
+  /* ---------- layout ---------- */
+  .app{display:flex;min-height:100vh;}
+  .sidebar{
+    width:290px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--line);
+    padding:22px 18px;position:sticky;top:0;height:100vh;overflow-y:auto;
+  }
+  .main{flex:1;min-width:0;padding:30px 40px 80px;max-width:900px;}
+  @media (max-width:900px){
+    .app{flex-direction:column;}
+    .sidebar{width:100%;height:auto;position:relative;border-left:none;border-bottom:1px solid var(--line);}
+    .main{padding:22px 16px 60px;max-width:100%;}
+  }
+
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:22px;cursor:pointer;}
+  .brand-mark{
+    width:38px;height:38px;border-radius:10px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--amber),#e08a2e);
+    display:flex;align-items:center;justify-content:center;font-size:19px;
+  }
+  .brand-text .t1{font-weight:700;font-size:15px;}
+  .brand-text .t2{font-size:11.5px;color:var(--text-faint);font-family:'JetBrains Mono',monospace;}
+
+  .py-status{
+    display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-faint);
+    background:var(--bg-soft);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:20px;
+  }
+  .py-dot{width:8px;height:8px;border-radius:50%;background:var(--text-faint);flex-shrink:0;}
+  .py-status.loading .py-dot{background:var(--amber);animation:pulse 1.2s infinite;}
+  .py-status.ready .py-dot{background:var(--green);}
+  .py-status.error .py-dot{background:var(--red);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+  .track-group{margin-bottom:18px;}
+  .track-group-label{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--text-faint);margin:0 0 8px 4px;display:flex;align-items:center;gap:6px;
+  }
+  .track-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+  .nav-item{
+    display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;
+    font-size:13.5px;color:var(--text-dim);margin-bottom:2px;transition:all .12s ease;
+  }
+  .nav-item:hover{background:var(--panel-2);color:var(--text);}
+  .nav-item.active{background:var(--panel-2);color:var(--text);font-weight:600;}
+  .nav-check{
+    width:18px;height:18px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;
+  }
+  .nav-item.done .nav-check{background:var(--green);border-color:var(--green);color:#12100D;}
+  .nav-item.partial .nav-check{border-color:var(--amber);}
+
+  .overall-progress{margin-top:6px;padding-top:16px;border-top:1px solid var(--line);}
+  .overall-progress .lbl{font-size:11.5px;color:var(--text-faint);margin-bottom:6px;font-family:'JetBrains Mono',monospace;display:flex;justify-content:space-between;}
+  .bar-track{height:6px;border-radius:4px;background:rgba(255,255,255,0.07);overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--amber),var(--teal));transition:width .3s ease;}
+
+  /* ---------- module content ---------- */
+  .module-eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text-faint);
+    text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px;
+  }
+  .track-pill{
+    font-size:10.5px;padding:2px 9px;border-radius:20px;font-family:'JetBrains Mono',monospace;
+  }
+  .module-title{font-size:26px;font-weight:800;margin:0 0 18px;letter-spacing:-0.3px;}
+  .reading{
+    font-size:15px;color:var(--text-dim);line-height:1.85;margin-bottom:26px;
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 24px;
+  }
+  .reading b{color:var(--text);}
+  .reading pre{
+    background:#0D0B08;border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+    overflow-x:auto;direction:ltr;text-align:left;font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;color:#D9C99A;margin:10px 0;line-height:1.6;
+  }
+  .reading code{
+    font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,0.06);
+    padding:1px 6px;border-radius:5px;font-size:12.5px;color:#E8C97A;direction:ltr;display:inline-block;
+  }
+
+  .section-label{
+    display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;margin:0 0 12px;color:var(--text);
+  }
+
+  /* ---------- code block (playground + exercises) ---------- */
+  .code-block{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:16px;
+  }
+  .code-block-head{
+    display:flex;align-items:center;justify-content:space-between;padding:10px 14px;
+    background:var(--panel-2);border-bottom:1px solid var(--line);
+  }
+  .code-block-head .dots{display:flex;gap:5px;}
+  .code-block-head .dots span{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.15);}
+  .code-block-label{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text-faint);}
+
+  textarea.code-editor{
+    width:100%;min-height:110px;background:#0D0B08;border:none;
+    color:#E8E2D0;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.6;
+    padding:14px 16px;resize:vertical;direction:ltr;text-align:left;display:block;
+  }
+  textarea.code-editor:focus{outline:none;}
+
+  .code-actions{display:flex;gap:8px;padding:10px 14px;flex-wrap:wrap;align-items:center;}
+
+  .btn{
+    appearance:none;border:1px solid var(--line);background:var(--panel-2);
+    color:var(--text);padding:9px 15px;border-radius:10px;font-family:inherit;
+    font-size:13px;font-weight:500;cursor:pointer;transition:all .15s ease;
+    display:inline-flex;align-items:center;gap:7px;
+  }
+  .btn:hover{border-color:rgba(255,255,255,0.22);transform:translateY(-1px);}
+  .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .btn-sm{padding:7px 12px;font-size:12.5px;border-radius:8px;}
+  .btn-primary{background:linear-gradient(135deg,var(--amber),#dd9a2e);color:#241905;border:none;font-weight:700;}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-check{background:linear-gradient(135deg,var(--teal),#39b3a6);color:#062521;border:none;font-weight:700;}
+  .btn-check:hover{filter:brightness(1.08);}
+  .btn-ghost{background:transparent;}
+
+  .code-output{
+    margin:0 14px 14px;padding:12px 14px;border-radius:10px;background:#0A0906;border:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--text-faint);
+    white-space:pre-wrap;direction:ltr;text-align:left;display:block;line-height:1.6;min-height:20px;
+  }
+  .code-output.error{color:var(--red);border-color:rgba(240,128,110,0.35);}
+  .code-output.pass{border-color:rgba(126,219,143,0.35);color:var(--text-dim);}
+  .code-output img{max-width:100%;border-radius:8px;margin-top:8px;background:#fff;}
+
+  .exercise-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:20px 22px;margin-bottom:20px;transition:border-color .2s ease;
+  }
+  .exercise-card.passed{border-color:rgba(126,219,143,0.45);}
+  .exercise-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .exercise-title{font-size:15.5px;font-weight:700;}
+  .ex-pill{
+    font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 10px;border-radius:20px;
+    background:rgba(126,219,143,0.15);color:var(--green);border:1px solid rgba(126,219,143,0.3);display:none;
+  }
+  .exercise-card.passed .ex-pill{display:inline-block;}
+  .exercise-instructions{font-size:14px;color:var(--text-dim);margin-bottom:14px;line-height:1.7;}
+  .exercise-instructions code{
+    font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,0.06);
+    padding:1px 6px;border-radius:5px;font-size:12.5px;color:#E8C97A;direction:ltr;display:inline-block;
+  }
+  .hint-solution-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+  .hint-box, .solution-box{
+    display:none;margin:10px 14px 0;padding:12px 14px;border-radius:10px;
+    font-size:13px;line-height:1.7;
+  }
+  .hint-box{background:rgba(245,185,66,0.08);border:1px solid rgba(245,185,66,0.25);color:var(--text-dim);}
+  .hint-box.show{display:block;}
+  .solution-box{background:#0D0B08;border:1px solid var(--line);}
+  .solution-box.show{display:block;}
+  .solution-box pre{
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#D9C99A;margin:0;
+    white-space:pre-wrap;direction:ltr;text-align:left;
+  }
+  .hint-box code{font-family:'JetBrains Mono',monospace;color:#E8C97A;}
+
+  .module-nav-footer{display:flex;justify-content:space-between;gap:12px;margin-top:30px;padding-top:22px;border-top:1px solid var(--line);}
+
+  /* ---------- welcome / landing ---------- */
+  .welcome-hero{padding:8px 2px 22px;}
+  .welcome-hero h1{font-size:clamp(24px,4vw,32px);font-weight:800;margin:0 0 12px;letter-spacing:-0.5px;}
+  .welcome-hero .accent{background:linear-gradient(90deg,var(--amber),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .welcome-hero p{color:var(--text-dim);font-size:15px;max-width:65ch;margin:0 0 6px;}
+  .welcome-note{
+    font-size:13px;color:var(--text-faint);background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:12px 16px;margin-top:18px;
+  }
+  .track-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;}
+  @media (max-width:640px){.track-cards{grid-template-columns:1fr;}}
+  .track-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;cursor:pointer;
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .track-card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,0.2);}
+  .track-card h3{margin:0 0 6px;font-size:17px;}
+  .track-card p{margin:0 0 12px;color:var(--text-faint);font-size:13px;}
+
+  ::-webkit-scrollbar{width:9px;height:9px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:10px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="sidebar">
+    <div class="brand" onclick="goWelcome()">
+      <div class="brand-mark">🐍</div>
+      <div class="brand-text">
+        <div class="t1">קורס פייתון לנתונים</div>
+        <div class="t2">interactive · runs in-browser</div>
+      </div>
+    </div>
+
+    <div class="py-status loading" id="py-status">
+      <span class="py-dot"></span>
+      <span id="py-status-text">טוען סביבת Python בדפדפן...</span>
+    </div>
+
+    <div id="sidebar-nav"></div>
+
+    <div class="overall-progress">
+      <div class="lbl"><span>התקדמות כללית</span><span id="overall-pct">0%</span></div>
+      <div class="bar-track"><div class="bar-fill" id="overall-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="main" id="main-content">
+    <!-- rendered by JS -->
+  </div>
+
+</div>
+<script>
+// ====== תוכן הקורס: מודולים, הסברים, מגרשי משחקים ותרגילים עם בדיקה אוטומטית ======
+// כל תרגיל מכיל starter (קוד פתיחה) ו-check (קוד פייתון שמריץ אחרי קוד התלמיד ובודק אותו עם assert).
+// אם ה-check עובר בלי שגיאה — התרגיל נחשב "עבר". אם נזרקת שגיאה — מוצגת לתלמיד כפידבק.
+
+const TRACKS = {
+  core: { label:'ליבה משותפת', color:'#F5B942' },
+  da:   { label:'מסלול Data Analyst', color:'#4DD0C4' },
+  ds:   { label:'מסלול Data Scientist', color:'#B98BF5' }
+};
+
+const MODULES = [
+
+{ id:'core1', track:'core', title:'משתנים, טיפוסים ופלט',
+  reading:`בפייתון יוצרים משתנה בהשמה פשוטה, בלי להצהיר על הטיפוס מראש: <code>x = 5</code>. הטיפוסים הבסיסיים: <code>int</code> (שלם), <code>float</code> (עשרוני), <code>str</code> (מחרוזת), <code>bool</code> (אמת/שקר). בודקים טיפוס עם <code>type(x)</code>. הדפסה נעשית עם <code>print()</code>, וה-f-string הוא הדרך הנוחה ביותר לשלב משתנים בתוך טקסט: <code>f"המחיר הוא {price} ש"ח"</code>. פייתון "מנחשת" את הטיפוס לפי הערך (dynamic typing) — נוח, אך אותו משתנה יכול להתחלף לטיפוס אחר בהמשך אם לא שמים לב.`,
+  playground:`price = 49.9
+product = "אוזניות אלחוטיות"
+in_stock = True
+
+print(f"{product} עולות {price} ש\\"ח")
+print("סוג המחיר:", type(price))
+print("במלאי?", in_stock)`,
+  exercises:[
+    { title:'תרגיל 1 — יצירת משתנים',
+      instructions:`צרו משתנה <code>price</code> עם הערך <code>59.9</code>, ומשתנה <code>product</code> עם המחרוזת <code>"אוזניות"</code>. אל תדפיסו כלום — רק צרו את המשתנים.`,
+      starter:`price = None
+product = None`,
+      hint:`רק השמה רגילה: <code>name = value</code>. תזכרו ש-59.9 הוא float, לא מחרוזת.`,
+      solution:`price = 59.9
+product = "אוזניות"`,
+      check:`assert price == 59.9, "price צריך להיות 59.9"
+assert isinstance(price, float), "price צריך להיות float, לא מחרוזת"
+assert _norm(product) == _norm("אוזניות"), 'product צריך להיות בדיוק "אוזניות"'
+print("✓ עבר")` },
+    { title:'תרגיל 2 — f-string',
+      instructions:`בהינתן המשתנים <code>name</code> ו-<code>score</code> שכבר מוגדרים, צרו משתנה בשם <code>message</code> שמכיל את המשפט: <code>"דנה קיבלה 87 נקודות"</code> — תוך שימוש ב-f-string (לא חיבור מחרוזות עם +).`,
+      starter:`name = "דנה"
+score = 87
+
+message = None`,
+      hint:`<code>message = f"{name} קיבלה {score} נקודות"</code>`,
+      solution:`name = "דנה"
+score = 87
+message = f"{name} קיבלה {score} נקודות"`,
+      check:`assert _norm(message) == _norm("דנה קיבלה 87 נקודות"), f"קיבלנו: {message!r}"
+print("✓ עבר")` }
+  ]
+},
+
+{ id:'core2', track:'core', title:'מחרוזות, רשימות, טאפלים ומילונים',
+  reading:`<b>list</b> — אוסף סדור וניתן לשינוי: <code>fruits = ['apple','banana']</code>, מוסיפים עם <code>.append()</code>. <b>tuple</b> — כמו list אך קבוע: <code>(10, 20)</code>. <b>dict</b> — זוגות מפתח-ערך: <code>{'name':'דנה','salary':15000}</code>, גישה עם <code>d['name']</code> או <code>d.get('name')</code> הבטוח יותר. על מחרוזות יש שיטות שימושיות: <code>.strip()</code> (הסרת רווחים), <code>.lower()</code>, <code>.split(',')</code> (פיצול), <code>.replace(a,b)</code>. אינדקסים ברשימה/מחרוזת מתחילים מ-0, ו-<code>lst[-1]</code> הוא האיבר האחרון.`,
+  playground:`employee = {"name": "יוסי", "role": "Analyst", "salary": 16000}
+skills = ["Python", "SQL", "Excel"]
+skills.append("Tableau")
+
+print(employee["name"], "-", employee.get("role"))
+print("כישורים:", ", ".join(skills))
+print("כישור ראשון:", skills[0], "| אחרון:", skills[-1])`,
+  exercises:[
+    { title:'תרגיל 1 — עבודה עם רשימה',
+      instructions:`בהינתן הרשימה <code>scores</code>, צרו משתנה <code>top_score</code> עם הערך הגבוה ביותר ברשימה, ומשתנה <code>total</code> עם סכום כל הערכים.`,
+      starter:`scores = [72, 88, 91, 65, 79]
+
+top_score = None
+total = None`,
+      hint:`יש פונקציות מובנות בדיוק בשביל זה: <code>max()</code> ו-<code>sum()</code>.`,
+      solution:`scores = [72, 88, 91, 65, 79]
+top_score = max(scores)
+total = sum(scores)`,
+      check:`assert top_score == 91, f"top_score שגוי: {top_score}"
+assert total == 395, f"total שגוי: {total}"
+print("✓ עבר")` },
+    { title:'תרגיל 2 — מילון של עובד',
+      instructions:`בנו מילון בשם <code>employee</code> עם המפתחות <code>name</code> (הערך <code>"מאיה"</code>), <code>department</code> (הערך <code>"Data"</code>) ו-<code>years</code> (הערך <code>3</code>). לאחר מכן צרו משתנה <code>summary</code> עם המשפט <code>"מאיה עובדת ב-Data כבר 3 שנים"</code> בעזרת f-string שמושך את הערכים מתוך המילון.`,
+      starter:`employee = {}
+
+summary = None`,
+      hint:`אחרי שממלאים את המילון: <code>f"{employee['name']} עובדת ב-{employee['department']} כבר {employee['years']} שנים"</code>`,
+      solution:`employee = {"name": "מאיה", "department": "Data", "years": 3}
+summary = f"{employee['name']} עובדת ב-{employee['department']} כבר {employee['years']} שנים"`,
+      check:`assert employee == {"name":"מאיה","department":"Data","years":3}, "המילון לא תואם"
+assert _norm(summary) == _norm("מאיה עובדת ב-Data כבר 3 שנים"), f"קיבלנו: {summary!r}"
+print("✓ עבר")` }
+  ]
+},
+
+{ id:'core3', track:'core', title:'תנאים, לולאות ופונקציות',
+  reading:`תנאים: <code>if condition: ... elif other: ... else: ...</code>. לולאת <code>for item in collection:</code> עוברת על אוסף (או <code>range(n)</code>). <code>while</code> ממשיכה כל עוד תנאי מתקיים. פונקציה מוגדרת עם <code>def</code> ומחזירה ערך עם <code>return</code>:
+<pre>def average(nums):
+    if not nums:
+        return 0
+    return sum(nums) / len(nums)</pre>
+List comprehension יוצרת רשימה בשורה אחת: <code>[n**2 for n in range(10)]</code> — כלי שכל אנליסט/מדען נתונים צריך להכיר, כי הוא מחליף המון לולאות מסורבלות.`,
+  playground:`def classify(score):
+    if score >= 90:
+        return "מצוין"
+    elif score >= 70:
+        return "טוב"
+    else:
+        return "דורש שיפור"
+
+scores = [95, 72, 58, 88]
+results = [classify(s) for s in scores]
+for s, r in zip(scores, results):
+    print(s, "->", r)`,
+  exercises:[
+    { title:'תרגיל 1 — פונקציית סיווג',
+      instructions:`כתבו פונקציה <code>grade_letter(score)</code> שמחזירה <code>"A"</code> אם הציון 90 ומעלה, <code>"B"</code> אם 75 עד 89, ואחרת <code>"C"</code>.`,
+      starter:`def grade_letter(score):
+    # השלימו כאן
+    pass`,
+      hint:`שרשרת if/elif/else, מהתנאי המחמיר ביותר לקל ביותר.`,
+      solution:`def grade_letter(score):
+    if score >= 90:
+        return "A"
+    elif score >= 75:
+        return "B"
+    else:
+        return "C"`,
+      check:`assert grade_letter(95) == "A"
+assert grade_letter(80) == "B"
+assert grade_letter(50) == "C"
+assert grade_letter(75) == "B"
+print("✓ עבר")` },
+    { title:'תרגיל 2 — list comprehension',
+      instructions:`בהינתן הרשימה <code>sales</code>, צרו רשימה חדשה בשם <code>high_sales</code> שמכילה רק את הערכים הגדולים מ-1000, באמצעות list comprehension (לא לולאת for עם append).`,
+      starter:`sales = [450, 1200, 980, 2300, 750, 1050]
+
+high_sales = None`,
+      hint:`<code>[x for x in sales if x > 1000]</code>`,
+      solution:`sales = [450, 1200, 980, 2300, 750, 1050]
+high_sales = [x for x in sales if x > 1000]`,
+      check:`assert high_sales == [1200, 2300, 1050], f"קיבלנו: {high_sales}"
+print("✓ עבר")` }
+  ]
+},
+
+{ id:'core4', track:'core', title:'NumPy — מערכים ווקטוריזציה',
+  reading:`NumPy הוא הבסיס לכל ספריות המדע בפייתון. המבנה המרכזי הוא <code>ndarray</code> — מערך שבו כל האיברים מאותו טיפוס, מה שמאפשר פעולות מהירות בהרבה מרשימת פייתון רגילה. יוצרים מערך עם <code>np.array([1,2,3])</code>. פעולות פועלות על כל המערך בבת אחת (וקטוריזציה): <code>arr * 2</code>, <code>arr > 50</code> (boolean masking לסינון), <code>arr.mean()</code>, <code>arr.sum()</code>. Broadcasting מאפשר לשלב מערכים בגדלים שונים בלי לולאה ידנית.`,
+  playground:`import numpy as np
+
+scores = np.array([72, 88, 91, 65, 79, 95])
+print("ממוצע:", scores.mean())
+print("סטיית תקן:", round(scores.std(), 2))
+
+above_80 = scores[scores > 80]
+print("מעל 80:", above_80)
+
+normalized = (scores - scores.mean()) / scores.std()
+print("מנורמל:", np.round(normalized, 2))`,
+  exercises:[
+    { title:'תרגיל 1 — סינון וקטורי',
+      instructions:`בהינתן מערך NumPy בשם <code>temps</code>, צרו מערך <code>hot_days</code> שמכיל רק את הימים עם טמפרטורה מעל 30 מעלות (בלי לולאה, רק boolean masking).`,
+      starter:`import numpy as np
+temps = np.array([28, 33, 25, 31, 19, 35, 22])
+
+hot_days = None`,
+      hint:`<code>temps[temps > 30]</code>`,
+      solution:`import numpy as np
+temps = np.array([28, 33, 25, 31, 19, 35, 22])
+hot_days = temps[temps > 30]`,
+      check:`import numpy as np
+assert np.array_equal(hot_days, np.array([33, 31, 35])), f"קיבלנו: {hot_days}"
+print("✓ עבר")` },
+    { title:'תרגיל 2 — אגרגציה לפי ציר',
+      instructions:`בהינתן מטריצה <code>matrix</code> בגודל 3x3, צרו וקטור <code>row_means</code> עם הממוצע של כל שורה (לא של כל העמודות!).`,
+      starter:`import numpy as np
+matrix = np.array([[10, 20, 30], [5, 15, 25], [100, 200, 300]])
+
+row_means = None`,
+      hint:`ציר השורות הוא <code>axis=1</code>: <code>matrix.mean(axis=1)</code>`,
+      solution:`import numpy as np
+matrix = np.array([[10, 20, 30], [5, 15, 25], [100, 200, 300]])
+row_means = matrix.mean(axis=1)`,
+      check:`import numpy as np
+assert np.array_equal(row_means, np.array([20.0, 15.0, 200.0])), f"קיבלנו: {row_means}"
+print("✓ עבר")` }
+  ]
+},
+
+{ id:'core5', track:'core', title:'Pandas — DataFrame, בחירה וניקוי',
+  reading:`<code>DataFrame</code> הוא הטבלה המרכזית של Pandas. בוחרים עמודה עם <code>df['col']</code>, מסננים שורות עם תנאי: <code>df[df['sales'] > 1000]</code>. <code>loc</code> בוחר לפי תוויות, <code>iloc</code> לפי מיקום. חוסרים בודקים עם <code>df.isna().sum()</code>, וממלאים/מסירים עם <code>fillna()</code>/<code>dropna()</code>. כפילויות מסירים עם <code>drop_duplicates()</code>. זהו הכלי שבו כל אנליסט ומדען נתונים מבלה הכי הרבה זמן.`,
+  playground:`import pandas as pd
+
+df = pd.DataFrame({
+    "product": ["מקלדת", "עכבר", "מסך", "אוזניות"],
+    "price": [120, 45, 890, None],
+    "in_stock": [True, True, False, True]
+})
+
+print(df)
+print("\\nחוסרים בכל עמודה:")
+print(df.isna().sum())
+
+cheap = df[df["price"] < 200]
+print("\\nמוצרים זולים:")
+print(cheap)`,
+  exercises:[
+    { title:'תרגיל 1 — סינון וטיפול בחוסרים',
+      instructions:`ל-DataFrame <code>df</code> יש עמודת <code>price</code> עם ערך חסר אחד. מלאו את הערך החסר בממוצע העמודה (בעזרת <code>fillna</code>), ושמרו את התוצאה בחזרה לתוך <code>df['price']</code>. לאחר מכן צרו <code>expensive</code> — DataFrame עם שורות שהמחיר בהן מעל 100.`,
+      starter:`import pandas as pd
+df = pd.DataFrame({
+    "product": ["מקלדת", "עכבר", "מסך", "אוזניות"],
+    "price": [120.0, 45.0, 890.0, None]
+})
+
+expensive = None`,
+      hint:`<code>df['price'] = df['price'].fillna(df['price'].mean())</code> ואז <code>df[df['price'] > 100]</code>`,
+      solution:`import pandas as pd
+df = pd.DataFrame({
+    "product": ["מקלדת", "עכבר", "מסך", "אוזניות"],
+    "price": [120.0, 45.0, 890.0, None]
+})
+df['price'] = df['price'].fillna(df['price'].mean())
+expensive = df[df['price'] > 100]`,
+      check:`assert df['price'].isna().sum() == 0, "עדיין יש חוסרים בעמודת price"
+assert len(expensive) == 2, f"ציפינו ל-2 שורות, קיבלנו {len(expensive)}"
+assert set(expensive['product']) == {"מקלדת", "מסך"}, f"קיבלנו: {set(expensive['product'])}"
+print("✓ עבר")` },
+    { title:'תרגיל 2 — עמודה חדשה',
+      instructions:`הוסיפו ל-DataFrame <code>df</code> עמודה חדשה בשם <code>price_with_vat</code> ששווה למחיר כפול 1.18 (מע"מ).`,
+      starter:`import pandas as pd
+df = pd.DataFrame({"product": ["A", "B", "C"], "price": [100, 200, 50]})
+
+# הוסיפו את העמודה כאן`,
+      hint:`<code>df['price_with_vat'] = df['price'] * 1.18</code>`,
+      solution:`import pandas as pd
+df = pd.DataFrame({"product": ["A", "B", "C"], "price": [100, 200, 50]})
+df['price_with_vat'] = df['price'] * 1.18`,
+      check:`import pandas as pd
+expected = [118.0, 236.0, 59.0]
+assert list(df['price_with_vat']) == expected, f"קיבלנו: {list(df['price_with_vat'])}"
+print("✓ עבר")` }
+  ]
+},
+
+{ id:'core6', track:'core', title:'Pandas — קיבוץ, אגרגציה ומיזוג',
+  reading:`<code>df.groupby('col').agg(...)</code> מחשב סטטיסטיקה לכל קבוצה — הכלי הכי שימושי לשאלות עסקיות ("כמה מכרנו לכל אזור"). <code>merge</code> מאחד שתי טבלאות לפי מפתח משותף, בדומה ל-JOIN ב-SQL: <code>orders.merge(customers, on='customer_id', how='left')</code>. <code>pivot_table</code> מארגן תוצאה כטבלה דו-ממדית, נוח לדוחות.`,
+  playground:`import pandas as pd
+
+orders = pd.DataFrame({
+    "region": ["צפון", "דרום", "צפון", "מרכז", "דרום"],
+    "amount": [100, 250, 150, 300, 90]
+})
+
+by_region = orders.groupby("region")["amount"].agg(["sum", "mean", "count"])
+print(by_region)`,
+  exercises:[
+    { title:'תרגיל 1 — groupby',
+      instructions:`בהינתן <code>orders</code>, צרו <code>totals</code> — Series עם סך ההזמנות (<code>sum</code>) לכל <code>region</code>, ממוינת מהגבוה לנמוך.`,
+      starter:`import pandas as pd
+orders = pd.DataFrame({
+    "region": ["צפון", "דרום", "צפון", "מרכז", "דרום"],
+    "amount": [100, 250, 150, 300, 90]
+})
+
+totals = None`,
+      hint:`<code>orders.groupby('region')['amount'].sum().sort_values(ascending=False)</code>`,
+      solution:`import pandas as pd
+orders = pd.DataFrame({
+    "region": ["צפון", "דרום", "צפון", "מרכז", "דרום"],
+    "amount": [100, 250, 150, 300, 90]
+})
+totals = orders.groupby('region')['amount'].sum().sort_values(ascending=False)`,
+      check:`assert list(totals.index) == ["מרכז", "דרום", "צפון"], f"סדר שגוי: {list(totals.index)}"
+assert totals.iloc[0] == 300
+print("✓ עבר")` },
+    { title:'תרגיל 2 — merge',
+      instructions:`מזגו את <code>orders</code> עם <code>customers</code> לפי <code>customer_id</code>, כך שכל הזמנות תישאר גם אם אין לה לקוח תואם (left join). שמרו את התוצאה במשתנה <code>merged</code>.`,
+      starter:`import pandas as pd
+orders = pd.DataFrame({"customer_id": [1, 2, 3], "amount": [100, 200, 150]})
+customers = pd.DataFrame({"customer_id": [1, 2], "name": ["דנה", "יוסי"]})
+
+merged = None`,
+      hint:`<code>orders.merge(customers, on='customer_id', how='left')</code>`,
+      solution:`import pandas as pd
+orders = pd.DataFrame({"customer_id": [1, 2, 3], "amount": [100, 200, 150]})
+customers = pd.DataFrame({"customer_id": [1, 2], "name": ["דנה", "יוסי"]})
+merged = orders.merge(customers, on='customer_id', how='left')`,
+      check:`import pandas as pd
+assert len(merged) == 3, f"ציפינו ל-3 שורות, קיבלנו {len(merged)}"
+assert pd.isna(merged.loc[merged['customer_id']==3, 'name']).all(), "ללקוח 3 לא היה אמור להיות שם"
+assert merged.loc[merged['customer_id']==1, 'name'].iloc[0] == "דנה"
+print("✓ עבר")` }
+  ]
+},
+
+{ id:'core7', track:'core', title:'ויזואליזציה עם matplotlib',
+  reading:`<code>plt.plot()</code> לגרף קו (מגמה לאורך זמן), <code>plt.bar()</code> להשוואת קטגוריות, <code>plt.hist()</code> להתפלגות. תמיד מוסיפים כותרת ותוויות צירים: <code>plt.title()</code>, <code>plt.xlabel()</code>, <code>plt.ylabel()</code>. בסביבה הזו כל גרף שתציירו יוצג אוטומטית מתחת לקוד.`,
+  playground:`import matplotlib.pyplot as plt
+
+regions = ["צפון", "דרום", "מרכז"]
+sales = [320, 450, 610]
+
+plt.figure(figsize=(6,4))
+plt.bar(regions, sales, color="#F5B942")
+plt.title("מכירות לפי אזור")
+plt.ylabel("מכירות (אלפי ש\\"ח)")
+plt.show()`,
+  exercises:[
+    { title:'תרגיל 1 — גרף עמודות',
+      instructions:`צרו גרף עמודות (<code>plt.bar</code>) שמציג את <code>months</code> על ציר ה-X ואת <code>revenue</code> על ציר ה-Y. הוסיפו כותרת <code>"הכנסות חודשיות"</code>.`,
+      starter:`import matplotlib.pyplot as plt
+months = ["ינואר", "פברואר", "מרץ"]
+revenue = [1000, 1500, 1200]
+
+# צרו את הגרף כאן`,
+      hint:`<code>plt.bar(months, revenue)</code> ואז <code>plt.title("הכנסות חודשיות")</code> ולבסוף <code>plt.show()</code>`,
+      solution:`import matplotlib.pyplot as plt
+months = ["ינואר", "פברואר", "מרץ"]
+revenue = [1000, 1500, 1200]
+plt.bar(months, revenue)
+plt.title("הכנסות חודשיות")
+plt.show()`,
+      check:`import matplotlib.pyplot as plt
+assert len(plt.get_fignums()) > 0, "לא צויר אף גרף — ודאו שקראתם ל-plt.show()"
+print("✓ עבר")` }
+  ]
+},
+
+{ id:'core8', track:'core', title:'סטטיסטיקה תיאורית והסקה',
+  reading:`ממוצע רגיש לערכים קיצוניים; חציון עמיד יותר. סטיית תקן מודדת פיזור. p-value (למשל דרך <code>scipy.stats.ttest_ind</code>) בודקת אם הבדל בין קבוצות מובהק סטטיסטית — סף מקובל הוא 0.05. חשוב לזכור: קורלציה אינה סיבתיות.`,
+  playground:`import numpy as np
+from scipy import stats
+
+group_a = np.array([23, 25, 21, 27, 24, 22])
+group_b = np.array([30, 32, 28, 31, 29, 33])
+
+t_stat, p_value = stats.ttest_ind(group_a, group_b)
+print("ממוצע A:", group_a.mean(), "| ממוצע B:", group_b.mean())
+print("p-value:", round(p_value, 5))
+print("מובהק?" , "כן" if p_value < 0.05 else "לא")`,
+  exercises:[
+    { title:'תרגיל 1 — t-test',
+      instructions:`בהינתן שתי קבוצות, השתמשו ב-<code>scipy.stats.ttest_ind</code> כדי לחשב את ה-p-value ולשמור אותו במשתנה <code>p_value</code>, וקבעו משתנה בוליאני <code>is_significant</code> שיהיה True אם p_value קטן מ-0.05.`,
+      starter:`import numpy as np
+from scipy import stats
+group_a = np.array([100, 102, 98, 101, 99])
+group_b = np.array([110, 115, 108, 112, 111])
+
+p_value = None
+is_significant = None`,
+      hint:`<code>t_stat, p_value = stats.ttest_ind(group_a, group_b)</code> ואז <code>is_significant = p_value < 0.05</code>`,
+      solution:`import numpy as np
+from scipy import stats
+group_a = np.array([100, 102, 98, 101, 99])
+group_b = np.array([110, 115, 108, 112, 111])
+t_stat, p_value = stats.ttest_ind(group_a, group_b)
+is_significant = p_value < 0.05`,
+      check:`assert p_value is not None
+assert is_significant == True, "עם ההבדל הגדול הזה בין הקבוצות, זה אמור להיות מובהק"
+print("✓ עבר")` }
+  ]
+},
+
+{ id:'da1', track:'da', title:'ניתוח עסקי ו-A/B Testing',
+  reading:`בבדיקת A/B טיפוסית: מחשבים שיעור המרה לכל גרסה, ובודקים אם ההבדל מובהק סטטיסטית עם <code>scipy.stats</code> (למשל <code>chi2_contingency</code> להשוואת שיעורים). חשוב תמיד להסתכל גם על גודל האפקט (effect size) בפועל, לא רק על p-value.`,
+  playground:`import numpy as np
+from scipy.stats import chi2_contingency
+
+# טבלת מגירה: [המרות, לא-המרות] לכל גרסה
+table = np.array([
+    [180, 820],   # גרסה A
+    [230, 770],   # גרסה B
+])
+
+chi2, p, dof, expected = chi2_contingency(table)
+rate_a = table[0,0] / table[0].sum()
+rate_b = table[1,0] / table[1].sum()
+print(f"שיעור המרה A: {rate_a:.1%} | B: {rate_b:.1%}")
+print(f"p-value: {p:.4f}")`,
+  exercises:[
+    { title:'תרגיל 1 — שיעור המרה',
+      instructions:`בהינתן מספר המבקרים והמומרים לכל גרסה, חשבו את <code>rate_a</code> ו-<code>rate_b</code> (שיעורי המרה כשברים בין 0 ל-1), וקבעו משתנה <code>better</code> עם הערך <code>"A"</code> או <code>"B"</code> לפי מי שגבוה יותר.`,
+      starter:`visitors_a, conversions_a = 1000, 150
+visitors_b, conversions_b = 1000, 195
+
+rate_a = None
+rate_b = None
+better = None`,
+      hint:`<code>rate_a = conversions_a / visitors_a</code>, וכן הלאה. השוו עם if.`,
+      solution:`visitors_a, conversions_a = 1000, 150
+visitors_b, conversions_b = 1000, 195
+rate_a = conversions_a / visitors_a
+rate_b = conversions_b / visitors_b
+better = "A" if rate_a > rate_b else "B"`,
+      check:`assert abs(rate_a - 0.15) < 1e-9
+assert abs(rate_b - 0.195) < 1e-9
+assert better == "B"
+print("✓ עבר")` }
+  ]
+},
+
+{ id:'da2', track:'da', title:'דוחות, Pivot ותובנות עסקיות',
+  reading:`דוח טוב עונה על שאלה עסקית ברורה. <code>pivot_table</code> בונה טבלה דו-ממדית (למשל חודש מול אזור), ו-<code>pct_change()</code> מחשב אחוז שינוי בין תקופות — שימושי מאוד להצגת מגמות.`,
+  playground:`import pandas as pd
+
+df = pd.DataFrame({
+    "month": ["ינו", "ינו", "פבר", "פבר"],
+    "region": ["צפון", "דרום", "צפון", "דרום"],
+    "sales": [100, 150, 130, 170]
+})
+
+pivot = pd.pivot_table(df, index="month", columns="region", values="sales", aggfunc="sum")
+print(pivot)`,
+  exercises:[
+    { title:'תרגיל 1 — pivot_table',
+      instructions:`בנו טבלת pivot בשם <code>pivot</code> מתוך <code>df</code>: שורות לפי <code>month</code>, עמודות לפי <code>region</code>, ערכים הם סכום <code>sales</code>.`,
+      starter:`import pandas as pd
+df = pd.DataFrame({
+    "month": ["ינו", "ינו", "פבר", "פבר"],
+    "region": ["צפון", "דרום", "צפון", "דרום"],
+    "sales": [100, 150, 130, 170]
+})
+
+pivot = None`,
+      hint:`<code>pd.pivot_table(df, index='month', columns='region', values='sales', aggfunc='sum')</code>`,
+      solution:`import pandas as pd
+df = pd.DataFrame({
+    "month": ["ינו", "ינו", "פבר", "פבר"],
+    "region": ["צפון", "דרום", "צפון", "דרום"],
+    "sales": [100, 150, 130, 170]
+})
+pivot = pd.pivot_table(df, index="month", columns="region", values="sales", aggfunc="sum")`,
+      check:`assert pivot.loc["ינו","צפון"] == 100
+assert pivot.loc["פבר","דרום"] == 170
+print("✓ עבר")` }
+  ]
+},
+
+{ id:'ds1', track:'ds', title:`הכנת נתונים ופיצ'רים למידול`,
+  reading:`מודלים מבוססי-מרחק זקוקים ל-feature scaling (סטנדרטיזציה). משתנים קטגוריאליים הופכים למספריים עם one-hot encoding: <code>pd.get_dummies(df['city'])</code>. הנדסת features טובה — כמו חילוץ יום בשבוע מתאריך — לרוב משפרת ביצועים יותר ממודל מתוחכם.`,
+  playground:`import pandas as pd
+from sklearn.preprocessing import StandardScaler
+
+df = pd.DataFrame({"city": ["TLV","HFA","TLV"], "income": [15000, 9000, 22000]})
+
+encoded = pd.get_dummies(df, columns=["city"])
+scaler = StandardScaler()
+encoded["income_scaled"] = scaler.fit_transform(encoded[["income"]])
+print(encoded)`,
+  exercises:[
+    { title:'תרגיל 1 — one-hot encoding',
+      instructions:`המירו את עמודת <code>category</code> ב-<code>df</code> ל-one-hot encoding בעזרת <code>pd.get_dummies</code>, ושמרו את התוצאה במשתנה <code>encoded</code>.`,
+      starter:`import pandas as pd
+df = pd.DataFrame({"category": ["A", "B", "A", "C"], "value": [10, 20, 15, 25]})
+
+encoded = None`,
+      hint:`<code>pd.get_dummies(df, columns=['category'])</code>`,
+      solution:`import pandas as pd
+df = pd.DataFrame({"category": ["A", "B", "A", "C"], "value": [10, 20, 15, 25]})
+encoded = pd.get_dummies(df, columns=["category"])`,
+      check:`cols = set(encoded.columns)
+assert "category_A" in cols and "category_B" in cols and "category_C" in cols, f"קיבלנו עמודות: {cols}"
+print("✓ עבר")` }
+  ]
+},
+
+{ id:'ds2', track:'ds', requiresPackages:['scikit-learn'], title:'מודל ראשון עם scikit-learn',
+  reading:`workflow סטנדרטי: <code>train_test_split</code> לחלוקת נתונים, אימון עם <code>.fit()</code>, חיזוי עם <code>.predict()</code>, והערכה עם מדדים מתאימים (<code>accuracy_score</code>, <code>mean_squared_error</code> וכו'). זה נכון כמעט לכל מודל ב-scikit-learn, מרגרסיה לינארית ועד יער אקראי.`,
+  playground:`from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import numpy as np
+
+X = np.array([[1],[2],[3],[4],[5],[6],[7],[8]])
+y = np.array([0,0,0,0,1,1,1,1])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+model = LogisticRegression()
+model.fit(X_train, y_train)
+preds = model.predict(X_test)
+print("חיזויים:", preds)
+print("דיוק:", accuracy_score(y_test, preds))`,
+  exercises:[
+    { title:'תרגיל 1 — אימון והערכה',
+      instructions:`אמנו מודל <code>LogisticRegression</code> על <code>X_train, y_train</code> הנתונים, חזו על <code>X_test</code> ושמרו את התחזיות במשתנה <code>preds</code>, ואת הדיוק (accuracy) במשתנה <code>acc</code>.`,
+      starter:`from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+import numpy as np
+
+X_train = np.array([[1],[2],[3],[6],[7],[8]])
+y_train = np.array([0,0,0,1,1,1])
+X_test = np.array([[2.5],[6.5]])
+y_test = np.array([0,1])
+
+model = LogisticRegression()
+preds = None
+acc = None`,
+      hint:`<code>model.fit(X_train, y_train)</code> ואז <code>preds = model.predict(X_test)</code> ואז <code>acc = accuracy_score(y_test, preds)</code>`,
+      solution:`from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+import numpy as np
+
+X_train = np.array([[1],[2],[3],[6],[7],[8]])
+y_train = np.array([0,0,0,1,1,1])
+X_test = np.array([[2.5],[6.5]])
+y_test = np.array([0,1])
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
+preds = model.predict(X_test)
+acc = accuracy_score(y_test, preds)`,
+      check:`assert acc == 1.0, f"ציפינו לדיוק מושלם על הדוגמה הפשוטה הזו, קיבלנו {acc}"
+print("✓ עבר")` }
+  ]
+}
+
+];
+</script>
+<script>
+/* ================= state ================= */
+let progress = {}; // { exerciseKey: true }  — exerciseKey = moduleId + '::' + exerciseIndex
+let currentModuleId = null;
+let pyodide = null;
+let pyodideReadyPromise = null;
+const loadedExtraPackages = new Set();
+
+/* ================= persistence (localStorage — this is an independent static site) ================= */
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem('py_course_progress');
+    if(raw) progress = JSON.parse(raw);
+  }catch(e){ /* ignore */ }
+}
+function saveProgress(){
+  try{ localStorage.setItem('py_course_progress', JSON.stringify(progress)); }catch(e){ /* ignore */ }
+}
+
+/* ================= Pyodide setup ================= */
+function setPyStatus(state, text){
+  const el = document.getElementById('py-status');
+  el.className = 'py-status ' + state;
+  document.getElementById('py-status-text').textContent = text;
+}
+
+function initPyodide(){
+  if(pyodideReadyPromise) return pyodideReadyPromise;
+  pyodideReadyPromise = (async () => {
+    setPyStatus('loading', 'טוען סביבת Python בדפדפן... (פעם ראשונה בלבד)');
+    try{
+      pyodide = await loadPyodide();
+      setPyStatus('loading', 'טוען numpy, pandas, matplotlib, scipy...');
+      await pyodide.loadPackage(['numpy','pandas','matplotlib','scipy']);
+      await pyodide.runPythonAsync(`
+import matplotlib
+matplotlib.use('AGG')
+`);
+      setPyStatus('ready', 'Python מוכן ✓');
+    }catch(e){
+      setPyStatus('error', 'שגיאה בטעינת Python — בדקו חיבור לאינטרנט ורעננו את הדף');
+      console.error(e);
+      throw e;
+    }
+  })();
+  return pyodideReadyPromise;
+}
+
+async function ensurePackages(pkgList){
+  if(!pkgList || !pkgList.length) return;
+  const missing = pkgList.filter(p => !loadedExtraPackages.has(p));
+  if(!missing.length) return;
+  setPyStatus('loading', `טוען ${missing.join(', ')}...`);
+  await pyodide.loadPackage(missing);
+  missing.forEach(p => loadedExtraPackages.add(p));
+  setPyStatus('ready', 'Python מוכן ✓');
+}
+
+// runs studentCode, then (optionally) checkCode. Returns {output, error, image}
+async function runInPyodide(studentCode, checkCode){
+  await initPyodide();
+  pyodide.globals.set('__student_code__', studentCode);
+  pyodide.globals.set('__check_code__', checkCode || '');
+  const wrapper = `
+import io, contextlib, json, base64, types
+import matplotlib.pyplot as plt
+
+_BIDI_CHARS = '\\u200e\\u200f\\u202a\\u202b\\u202c\\u202d\\u202e\\u2066\\u2067\\u2068\\u2069'
+def _norm(s):
+    if not isinstance(s, str):
+        return s
+    for ch in _BIDI_CHARS:
+        s = s.replace(ch, '')
+    return ' '.join(s.split())
+
+_before_keys = set(globals().keys())
+_buf = io.StringIO()
+_error = None
+_img = None
+_vars_echo = None
+try:
+    with contextlib.redirect_stdout(_buf):
+        exec(__student_code__, globals())
+        if __check_code__:
+            exec(__check_code__, globals())
+    if plt.get_fignums():
+        _imgbuf = io.BytesIO()
+        plt.savefig(_imgbuf, format='png', bbox_inches='tight', facecolor='white')
+        _imgbuf.seek(0)
+        _img = base64.b64encode(_imgbuf.read()).decode('utf-8')
+        plt.close('all')
+    # if nothing was printed, echo the top-level variables the code just created —
+    # much more useful feedback than a blank "ran successfully" for assignment-only exercises
+    if not _buf.getvalue().strip():
+        _after_keys = set(globals().keys())
+        _new_keys = sorted(k for k in (_after_keys - _before_keys) if not k.startswith('_'))
+        _lines = []
+        for k in _new_keys:
+            v = globals().get(k)
+            if isinstance(v, (types.ModuleType, type)) or callable(v):
+                continue
+            try:
+                _r = repr(v)
+            except Exception:
+                continue
+            if len(_r) > 400:
+                _r = _r[:400] + ' ...'
+            _lines.append(f"{k} = {_r}")
+        if _lines:
+            _vars_echo = "\\n".join(_lines)
+except Exception as e:
+    _error = f"{type(e).__name__}: {e}"
+
+json.dumps({'output': _buf.getvalue(), 'error': _error, 'image': _img, 'vars_echo': _vars_echo})
+`;
+  const resultJson = await pyodide.runPythonAsync(wrapper);
+  return JSON.parse(resultJson);
+}
+
+/* ================= navigation ================= */
+function findModule(id){ return MODULES.find(m => m.id === id); }
+
+function goWelcome(){
+  currentModuleId = null;
+  renderSidebar();
+  renderWelcome();
+}
+
+function openModule(id){
+  currentModuleId = id;
+  renderSidebar();
+  renderModule(id);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function selectTrack(track){
+  const first = MODULES.find(m => m.track === 'core') || MODULES.find(m => m.track === track);
+  openModule(first.id);
+}
+
+/* ================= progress helpers ================= */
+function moduleProgress(mod){
+  const total = mod.exercises.length;
+  const done = mod.exercises.filter((ex,i) => progress[mod.id+'::'+i]).length;
+  return { total, done };
+}
+
+function overallProgress(trackFilter){
+  let total=0, done=0;
+  MODULES.forEach(m=>{
+    if(trackFilter && m.track !== 'core' && m.track !== trackFilter) return;
+    const p = moduleProgress(m);
+    total += p.total; done += p.done;
+  });
+  return { total, done, pct: total ? Math.round(done/total*100) : 0 };
+}
+
+/* ================= sidebar ================= */
+function renderSidebar(){
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+
+  ['core','da','ds'].forEach(track=>{
+    const mods = MODULES.filter(m=>m.track===track);
+    if(!mods.length) return;
+    const group = document.createElement('div');
+    group.className = 'track-group';
+    const label = document.createElement('div');
+    label.className = 'track-group-label';
+    label.innerHTML = `<span class="track-dot" style="background:${TRACKS[track].color}"></span>${TRACKS[track].label}`;
+    group.appendChild(label);
+
+    mods.forEach(m=>{
+      const p = moduleProgress(m);
+      const item = document.createElement('div');
+      item.className = 'nav-item' + (m.id===currentModuleId?' active':'') + (p.done===p.total && p.total>0 ? ' done' : p.done>0 ? ' partial' : '');
+      item.onclick = ()=>openModule(m.id);
+      item.innerHTML = `<span class="nav-check">${p.done===p.total && p.total>0 ? '✓' : ''}</span><span>${m.title}</span>`;
+      group.appendChild(item);
+    });
+    nav.appendChild(group);
+  });
+
+  const overall = overallProgress(null);
+  document.getElementById('overall-pct').textContent = overall.pct + '%';
+  document.getElementById('overall-bar').style.width = overall.pct + '%';
+}
+
+/* ================= welcome view ================= */
+function renderWelcome(){
+  const main = document.getElementById('main-content');
+  main.innerHTML = `
+    <div class="welcome-hero">
+      <h1>קורס <span class="accent">פייתון לנתונים</span> — אינטראקטיבי לגמרי</h1>
+      <p>קורס מובנה לפי נושאים, מהיסודות ועד מודל למידת מכונה ראשון. כל שיעור כולל הסבר קצר, "מגרש משחקים" להרצת קוד חופשי, ותרגילים שנבדקים אוטומטית — ממש כמו סביבת פיתוח אמיתית, ישירות בדפדפן.</p>
+      <div class="welcome-note">🐍 הקוד רץ אמיתית בדפדפן שלכם באמצעות Pyodide (Python-in-the-browser) — לא הדמיה. בטעינה הראשונה זה עשוי לקחת כמה שניות.</div>
+    </div>
+    <div class="track-cards">
+      <div class="track-card" onclick="selectTrack('da')">
+        <h3 style="color:${TRACKS.da.color}">מסלול Data Analyst</h3>
+        <p>יסודות פייתון ← NumPy ← Pandas ← ויזואליזציה ← סטטיסטיקה ← A/B testing ודוחות עסקיים</p>
+        <button class="btn btn-primary btn-sm">▶ התחלת מסלול</button>
+      </div>
+      <div class="track-card" onclick="selectTrack('ds')">
+        <h3 style="color:${TRACKS.ds.color}">מסלול Data Scientist</h3>
+        <p>יסודות פייתון ← NumPy ← Pandas ← ויזואליזציה ← סטטיסטיקה ← הכנת פיצ'רים ← מודל ראשון ב-scikit-learn</p>
+        <button class="btn btn-primary btn-sm">▶ התחלת מסלול</button>
+      </div>
+    </div>
+  `;
+  initPyodide(); // start loading in the background as soon as the user lands
+}
+
+/* ================= module view ================= */
+function renderModule(id){
+  const mod = findModule(id);
+  const main = document.getElementById('main-content');
+  main.innerHTML = '';
+
+  const eyebrow = document.createElement('div');
+  eyebrow.className = 'module-eyebrow';
+  eyebrow.innerHTML = `<span class="track-pill" style="background:${TRACKS[mod.track].color}22;color:${TRACKS[mod.track].color};border:1px solid ${TRACKS[mod.track].color}44;">${TRACKS[mod.track].label}</span>`;
+  main.appendChild(eyebrow);
+
+  const title = document.createElement('h1');
+  title.className = 'module-title';
+  title.textContent = mod.title;
+  main.appendChild(title);
+
+  const reading = document.createElement('div');
+  reading.className = 'reading';
+  reading.innerHTML = mod.reading;
+  main.appendChild(reading);
+
+  const pgLabel = document.createElement('div');
+  pgLabel.className = 'section-label';
+  pgLabel.innerHTML = `🧪 מגרש משחקים <span style="font-weight:400;color:var(--text-faint);font-size:12.5px;">— ערכו את הקוד והריצו חופשי</span>`;
+  main.appendChild(pgLabel);
+
+  main.appendChild(buildPlaygroundBlock(mod));
+
+  const exLabel = document.createElement('div');
+  exLabel.className = 'section-label';
+  exLabel.style.marginTop = '30px';
+  exLabel.innerHTML = `📝 תרגילים`;
+  main.appendChild(exLabel);
+
+  mod.exercises.forEach((ex, i)=>{
+    main.appendChild(buildExerciseCard(mod, ex, i));
+  });
+
+  main.appendChild(buildModuleFooter(mod));
+}
+
+function buildPlaygroundBlock(mod){
+  const wrap = document.createElement('div');
+  wrap.className = 'code-block';
+  const domId = 'pg-'+mod.id;
+  wrap.innerHTML = `
+    <div class="code-block-head">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="code-block-label">playground.py</span>
+    </div>
+    <textarea class="code-editor" id="editor-${domId}">${escapeHtml(mod.playground)}</textarea>
+    <div class="code-actions">
+      <button class="btn btn-primary btn-sm" id="run-${domId}">▶ הרץ קוד</button>
+      <button class="btn btn-ghost btn-sm" id="reset-${domId}">↺ איפוס לקוד המקורי</button>
+    </div>
+    <div class="code-output mono" id="output-${domId}">▷ לחצו "הרץ קוד" כדי לראות פלט כאן</div>
+  `;
+  setTimeout(()=>{
+    document.getElementById('run-'+domId).onclick = ()=> executeBlock(domId, mod, null);
+    document.getElementById('reset-'+domId).onclick = ()=>{
+      document.getElementById('editor-'+domId).value = mod.playground;
+    };
+  }, 0);
+  return wrap;
+}
+
+function buildExerciseCard(mod, ex, idx){
+  const key = mod.id+'::'+idx;
+  const passed = !!progress[key];
+  const domId = 'ex-'+mod.id+'-'+idx;
+  const card = document.createElement('div');
+  card.className = 'exercise-card' + (passed ? ' passed' : '');
+  card.id = 'card-'+domId;
+  card.innerHTML = `
+    <div class="exercise-top">
+      <span class="exercise-title">${ex.title}</span>
+      <span class="ex-pill" id="pill-${domId}">✓ עבר</span>
+    </div>
+    <div class="exercise-instructions">${ex.instructions}</div>
+    <div class="code-block" style="margin-bottom:0;">
+      <div class="code-block-head">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span class="code-block-label">exercise.py</span>
+      </div>
+      <textarea class="code-editor" id="editor-${domId}">${escapeHtml(ex.starter)}</textarea>
+      <div class="code-actions">
+        <button class="btn btn-primary btn-sm" id="run-${domId}">▶ הרץ</button>
+        <button class="btn btn-check btn-sm" id="check-${domId}">✅ בדוק</button>
+        <button class="btn btn-ghost btn-sm" id="hint-${domId}">💡 רמז</button>
+        <button class="btn btn-ghost btn-sm" id="sol-${domId}">👁️ פתרון</button>
+      </div>
+      <div class="code-output mono" id="output-${domId}">▷ לחצו "הרץ" כדי לבדוק את הפלט, או "בדוק" כדי לוודא שהתרגיל נכון</div>
+      <div class="hint-box" id="hintbox-${domId}">${ex.hint || ''}</div>
+      <div class="solution-box" id="solbox-${domId}"><pre>${escapeHtml(ex.solution || '')}</pre></div>
+    </div>
+  `;
+  setTimeout(()=>{
+    document.getElementById('run-'+domId).onclick = ()=> executeBlock(domId, mod, null);
+    document.getElementById('check-'+domId).onclick = ()=> executeBlock(domId, mod, ex, idx, key);
+    document.getElementById('hint-'+domId).onclick = ()=>{
+      document.getElementById('hintbox-'+domId).classList.toggle('show');
+    };
+    document.getElementById('sol-'+domId).onclick = ()=>{
+      document.getElementById('solbox-'+domId).classList.toggle('show');
+    };
+  }, 0);
+  return card;
+}
+
+function buildModuleFooter(mod){
+  const idx = MODULES.findIndex(m=>m.id===mod.id);
+  const prev = MODULES[idx-1];
+  const next = MODULES[idx+1];
+  const footer = document.createElement('div');
+  footer.className = 'module-nav-footer';
+  footer.innerHTML = `
+    <button class="btn" ${prev ? '' : 'disabled'} id="prev-btn">→ ${prev ? prev.title : ''}</button>
+    <button class="btn btn-primary" ${next ? '' : 'disabled'} id="next-btn">${next ? next.title : 'סיימת את כל הקורס! 🎉'} ←</button>
+  `;
+  setTimeout(()=>{
+    if(prev) document.getElementById('prev-btn').onclick = ()=>openModule(prev.id);
+    if(next) document.getElementById('next-btn').onclick = ()=>openModule(next.id);
+  },0);
+  return footer;
+}
+
+/* ================= execution ================= */
+async function executeBlock(domId, mod, ex, exIdx, key){
+  const editor = document.getElementById('editor-'+domId);
+  const output = document.getElementById('output-'+domId);
+  const runBtn = document.getElementById('run-'+domId);
+  const checkBtn = document.getElementById('check-'+domId);
+  const isCheck = !!ex;
+
+  output.className = 'code-output mono';
+  output.textContent = '⏳ מריץ קוד...';
+  if(runBtn) runBtn.disabled = true;
+  if(checkBtn) checkBtn.disabled = true;
+
+  try{
+    if(mod.requiresPackages) await ensurePackages(mod.requiresPackages);
+    const result = await runInPyodide(editor.value, isCheck ? ex.check : null);
+
+    let renderedText = result.output || '';
+    if(result.error){
+      output.className = 'code-output mono error';
+      renderedText += (renderedText ? '\n' : '') + '❌ ' + result.error;
+      output.textContent = renderedText;
+      if(isCheck){
+        markExercise(mod.id, exIdx, key, false);
+      }
+    } else {
+      output.className = 'code-output mono' + (isCheck ? ' pass' : '');
+      if(renderedText){
+        output.textContent = renderedText;
+      } else if(result.vars_echo){
+        output.textContent = (isCheck ? '✓ עבר — כל הבדיקות עברו בהצלחה\n\n' : '') + '# אין הדפסה, אלה הערכים שנוצרו:\n' + result.vars_echo;
+      } else {
+        output.textContent = isCheck ? '✓ עבר — כל הבדיקות עברו בהצלחה' : '✓ הקוד רץ בהצלחה (אין פלט או משתנים חדשים להצגה)';
+      }
+      if(result.image){
+        const img = document.createElement('img');
+        img.src = 'data:image/png;base64,' + result.image;
+        output.appendChild(img);
+      }
+      if(isCheck){
+        markExercise(mod.id, exIdx, key, true);
+      }
+    }
+  }catch(e){
+    output.className = 'code-output mono error';
+    output.textContent = '❌ שגיאה בלתי צפויה: ' + (e.message || e);
+  }finally{
+    if(runBtn) runBtn.disabled = false;
+    if(checkBtn) checkBtn.disabled = false;
+  }
+}
+
+function markExercise(moduleId, exIdx, key, passed){
+  progress[key] = passed;
+  saveProgress();
+  const domId = 'ex-'+moduleId+'-'+exIdx;
+  const card = document.getElementById('card-'+domId);
+  card.classList.toggle('passed', passed);
+  renderSidebar();
+}
+
+/* ================= html escaping for textareas ================= */
+function escapeHtml(str){
+  return (str || '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+/* ================= init ================= */
+(function init(){
+  loadProgress();
+  renderSidebar();
+  renderWelcome();
+})();
+</script>
+</body>
+</html>
